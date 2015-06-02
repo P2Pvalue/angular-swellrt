@@ -31,6 +31,7 @@ angular.module('SwellRTService',[])
 
     var ret = {
       startSession: startSession,
+      stopSession: stopSession,
       open: openModel,
       close: closeModel,
       create: create,
@@ -56,6 +57,12 @@ angular.module('SwellRTService',[])
          function () {
            defSession.reject('Error conecting to wavejs server: Try again later');
          });
+       });
+    };
+
+    function stopSession(server, user, pass){
+       swellrt.then(function() {
+         window.SwellRT.stopSession();
        });
     };
 
