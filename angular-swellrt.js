@@ -20,7 +20,7 @@ angular.module('SwellRTService',[])
     var currentWaveId = null;
     var currentModel = {model: {}};
     var loginData;
-    var defMmodel = $q.defer();
+    var defModel = $q.defer();
 
     window.onSwellRTReady = function() {
       defSwellRT.resolve(window.SwellRT);
