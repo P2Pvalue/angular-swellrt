@@ -73,6 +73,7 @@ angular.module('SwellRTService',[])
     };
 
     function openModel(waveId){
+      var deferred = $q.defer();
       defModel.notify('Opening ' + waveId + ' model.');
       session.then(function(api) {
         api
@@ -84,20 +85,21 @@ angular.module('SwellRTService',[])
                          simplify(model.root, ret.copy, []);
                          registerEventHandlers(model.root, ret.copy, []);
                          watchModel(model.root, ret.copy, []);
-                         defModel.resolve(model);
+                         deferred.resolve(model);
+                         defModel.resolve(ret.copy);
                        });
                      },
                      function(error){
                        console.log(error);
                        apply(function() {
-                         defModel.reject(error);
+                         deferred.reject(error);
                          currentWaveId = null;
                          currentModel = {};
                        });
                      }
                     );
       });
-      return defModel.promise;
+      return deferred.promise;
     }
 
     function closeModel(waveId){
