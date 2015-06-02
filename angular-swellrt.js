@@ -208,9 +208,9 @@ angular.module('SwellRTService',[])
 
      */
     function registerEventHandlers(e, m, p){
- 
+
       depthFirstFunct(
-        e, m, p, 
+        e, m, p,
         function(elem, mod, path){
         elem.registerEventHandler(
           SwellRT.events.ITEM_CHANGED,
@@ -286,8 +286,6 @@ angular.module('SwellRTService',[])
               var p = (path || []).slice();
               p.push(item[0]);
               try {
-                // TODO call simplify, register event handlers and watch model
-                console.log('reg: map: item added');
                 simplify(item[1], mod, p);
                 registerEventHandlers(item[1], mod, p);
                 watchModel(item[1], mod, p);
@@ -388,7 +386,7 @@ angular.module('SwellRTService',[])
                  elem.remove(value);
                  apply();
                });
-           });          
+           });
         },
         function(elem, mod, path){
           $rootScope.$watchCollection(
@@ -418,12 +416,12 @@ angular.module('SwellRTService',[])
       var className = classSimpleName(e);
       switch (className) {
         case 'StringType':
-          
+
 
           break;
 
         case 'MapType':
-          
+
           break;
 
         case 'ListType':
