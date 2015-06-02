@@ -1,0 +1,26 @@
+{
+  "name": "angular-swellrt",
+  "version": "0.0.0",
+  "authors": [
+    "Antonio Tenorio Fornés <antoniotenorio@ucm.es>"
+  ],
+  "description": "SwellRT integration for angular.js: 3 way data binding (client, model, server) for real time collaboration over a federated infraestructure thanks to SwellRT technology.",
+  "main": "swellrt.js",
+  "keywords": [
+    "Real-time",
+    "collaboration",
+    "angularjs",
+    "angular",
+    "federation",
+    "decentralized"
+  ],
+  "license": "GPLv3",
+  "homepage": "https://github.com/P2Pvalue/angular-swellrt",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
