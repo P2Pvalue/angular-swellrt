@@ -142,7 +142,6 @@ angular.module('SwellRTService',[])
       try {
         o = obj.get(key);
       } catch (e) {
-        console.log(e);
       }
       var isNew = !o;
       if (typeof value === 'string'){
@@ -167,14 +166,12 @@ angular.module('SwellRTService',[])
           obj.add(o);
           }
         catch (e){
-          console.log(e);
         }
       } else if (className === 'MapType'){
         try{
           obj.put(key, o);
         }
         catch (e){
-          console.log(e);
         }
       }
       if (typeof value !== 'string'){
