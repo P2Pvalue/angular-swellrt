@@ -20,6 +20,7 @@ angular.module('SwellRTService',[])
     var currentWaveId = null;
     var currentModel = {model: {}};
     var loginData;
+    var defMmodel = $q.defer();
 
     window.onSwellRTReady = function() {
       defSwellRT.resolve(window.SwellRT);
@@ -29,13 +30,18 @@ angular.module('SwellRTService',[])
       defSwellRT.resolve(window.SwellRT);
     }
 
+    function getModel(){
+      return defModel.promise;
+    }
+
     var ret = {
       startSession: startSession,
       stopSession: stopSession,
       open: openModel,
       close: closeModel,
       create: create,
-      copy: {}
+      copy: {},
+      model: getModel
     };
 
     var apply = function (fun) {
@@ -67,8 +73,7 @@ angular.module('SwellRTService',[])
     };
 
     function openModel(waveId){
-      var deferred = $q.defer();
-      deferred.notify('Opening ' + waveId + ' model.');
+      defModel.notify('Opening ' + waveId + ' model.');
       session.then(function(api) {
         api
           .openModel(waveId,
@@ -79,20 +84,20 @@ angular.module('SwellRTService',[])
                          simplify(model.root, ret.copy, []);
                          registerEventHandlers(model.root, ret.copy, []);
                          watchModel(model.root, ret.copy, []);
-                         deferred.resolve(model);
+                         defModel.resolve(model);
                        });
                      },
                      function(error){
                        console.log(error);
                        apply(function() {
-                         deferred.reject(error);
+                         defModel.reject(error);
                          currentWaveId = null;
                          currentModel = {};
                        });
                      }
                     );
       });
-      return deferred.promise;
+      return defModel.promise;
     }
 
     function closeModel(waveId){
