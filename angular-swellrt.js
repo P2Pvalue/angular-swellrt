@@ -13,12 +13,24 @@ angular.module('SwellRTService',[])
       return a.filter(function(i) {return b.indexOf(i) < 0;});
     }
 
-    var def = $q.defer();
-    var session = def.promise;
+    var defSwellRT = $q.defer();
+    var swellrt = defSwellRT.promise;
+    var defSession = $q.defer();
+    var session = defSession.promise;
     var currentWaveId = null;
     var currentModel = {model: {}};
+    var loginData;
+
+    window.onSwellRTReady = function() {
+      defSwellRT.resolve(window.SwellRT);
+    };
+
+    if (window.SwellRT){
+      defSwellRT.resolve(window.SwellRT);
+    }
 
     var ret = {
+      startSession: startSession,
       open: openModel,
       close: closeModel,
       create: create,
@@ -32,26 +44,19 @@ angular.module('SwellRTService',[])
       }
     };
 
-    function init(){
-    // TODO get server, user and pass from method
-      window.SwellRT.startSession(
-        window.swellrtConfig.server,
-        window.swellrtConfig.user,
-        window.swellrtConfig.pass,
-        function () {
-          apply(function() {
-            def.resolve(window.SwellRT);
-          });
-        },
-        function () {
-           def.reject('Error conecting to wavejs server: Try again later');
+    function startSession(server, user, pass){
+       swellrt.then(function() {
+         window.SwellRT.startSession(
+         server, user, pass,
+         function () {
+           apply(function() {
+             defSession.resolve(window.SwellRT);
+           });
+         },
+         function () {
+           defSession.reject('Error conecting to wavejs server: Try again later');
          });
-    }
-    if ( window.SwellRT) {
-      init();
-    }
-    window.onSwellRTReady = function () {
-     init();
+       });
     };
 
     function openModel(waveId){
