@@ -417,60 +417,26 @@ angular.module('SwellRTService',[])
           });
         }
       );
-      var className = classSimpleName(e);
-      switch (className) {
-        case 'StringType':
-
-
-          break;
-
-        case 'MapType':
-
-          break;
-
-        case 'ListType':
-
-          break;
       }
     }
 
-    function simplify(e, mod, path){
-      var className = classSimpleName(e);
-      switch (className) {
 
-        case 'StringType':
 
-          setPathValue(mod, path, e.getValue());
-
-          break;
-
-        case 'MapType':
-
+    function simplify(e, m, p){
+      depthFirstFunct(
+        e, m, p,
+        function (elem, mod, path) {
+          setPathValue(mod, path, elem.getValue());
+        },
+        function(elem, mod, path) {
           // TODO: only if not exists
           setPathValue(mod, path, {});
-          var keys = e.keySet();
-          angular.forEach(keys,function(value){
-              var el = e.get(value);
-              var p = (path || []).slice();
-              p.push(value);
-              simplify(el, mod, p);
-          });
-
-          break;
-
-        case 'ListType':
-
+        },
+        function(elem, mod, path) {
           // TODO: only if not exists
           setPathValue(mod, path, []);
 
-          var keyNum = e.size();
-          for(var i = 0; i < keyNum; i++){
-            var p = (path || []).slice();
-            p.push('' + i);
-            simplify(e.get(i), mod, p);
-          }
-
-          break;
+        }
       }
     }
     return ret;
