@@ -417,10 +417,7 @@ angular.module('SwellRTService',[])
           });
         }
       );
-      }
     }
-
-
 
     function simplify(e, m, p){
       depthFirstFunct(
@@ -435,9 +432,8 @@ angular.module('SwellRTService',[])
         function(elem, mod, path) {
           // TODO: only if not exists
           setPathValue(mod, path, []);
-
         }
-      }
+      )
     }
     return ret;
   }]);
