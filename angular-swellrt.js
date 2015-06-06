@@ -51,6 +51,14 @@ angular.module('SwellRTService',[])
       }
     };
 
+    //dummy TextType Object (used to create a real TextObject where it is attached)
+    SwellrtTextObject = function(text){
+      this.getType = function(){
+        return 'TextType';
+      };
+      this.text = text;
+    };
+
     function startSession(server, user, pass){
        swellrt.then(function() {
          window.SwellRT.startSession(
@@ -167,7 +175,11 @@ angular.module('SwellRTService',[])
         }
       } else if (value instanceof Object){
         if (isNew){
-          o = currentModel.model.createMap();
+          if (typeof value.getType !== 'function'){
+            o = currentModel.model.createMap();
+          } else if (value.getType() === 'TextType'){
+            o = currentModel.model.createText(value.text);
+          }
         }
       }
       // Attach
