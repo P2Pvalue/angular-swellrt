@@ -451,4 +451,28 @@ angular.module('SwellRTService',[])
       );
     }
     return ret;
-  }]);
+  }])
+  .directive('swellrtEditor', function() {
+
+    function link(scope, element, attrs, ngModelCtrl) {
+      if (!element.attr('id')){
+        var id = Math.random().toString(36).substr(2, 5);
+        element.attr('id', id);
+      }
+
+      ngModelCtrl.$formatters.unshift(function (modelValue) {
+        if (modelValue){
+          var editor = window.SwellRT.editor(id);
+          editor.edit(modelValue);
+        }
+      });
+    }
+
+    return {
+      require: 'ngModel',
+      link: link,
+      scope: {
+          ngModel : '='
+        }
+    };
+  });
