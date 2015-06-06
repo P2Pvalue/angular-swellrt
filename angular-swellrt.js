@@ -93,6 +93,7 @@ angular.module('SwellRTService',[])
                        console.log(error);
                        apply(function() {
                          deferred.reject(error);
+                         defModel.reject(error);
                          currentWaveId = null;
                          currentModel = {};
                        });
@@ -137,6 +138,9 @@ angular.module('SwellRTService',[])
       }
       if (typeof o.getValue === 'function'){
         return 'StringType';
+      }
+      if (typeof o.getDelegate === 'function'){
+        return 'TextType';
       }
       return 'unknown';
     }
@@ -316,9 +320,9 @@ angular.module('SwellRTService',[])
       );
     }
 
-    // visits all nodes of the model and depending on the type (string, list or map)
+    // visits all nodes of the model and depending on the type (string, list, map or text)
     // call a function of the params
-    function depthFirstFunct(e, mod, path, funStr, funList, funMap){
+    function depthFirstFunct(e, mod, path, funStr, funList, funMap, funText){
       var className = classSimpleName(e);
       switch (className) {
 
@@ -336,20 +340,28 @@ angular.module('SwellRTService',[])
             var el = e.get(value);
             var p = (path || []).slice();
             p.push(value);
-            depthFirstFunct(el, mod, p, funStr, funList, funMap);
+            depthFirstFunct(el, mod, p, funStr, funList, funMap, funText);
           });
 
           break;
 
         case 'ListType':
+
           funList(e, mod, path);
           var keyNum = e.size();
           for(var i = 0; i < keyNum; i++){
             var p = (path || []).slice();
             p.push('' + i);
-            depthFirstFunct(e.get(i), mod, p, funStr, funList, funMap);
+            depthFirstFunct(e.get(i), mod, p, funStr, funList, funMap, funText);
           }
 
+          break;
+
+        case 'TextType':
+
+        if (typeof funText === 'function'){
+           funText(e, mod, path);
+          }
           break;
       }
     }
@@ -432,6 +444,9 @@ angular.module('SwellRTService',[])
         function(elem, mod, path) {
           // TODO: only if not exists
           setPathValue(mod, path, {});
+        },
+        function(elem, mod, path) {
+          setPathValue(mod, path, elem);
         }
       );
     }
