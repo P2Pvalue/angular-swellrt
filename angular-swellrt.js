@@ -72,13 +72,13 @@ angular.module('SwellRTService',[])
            defSession.reject('Error conecting to wavejs server: Try again later');
          });
        });
-    };
+    }
 
     function stopSession(server, user, pass){
        swellrt.then(function() {
          window.SwellRT.stopSession();
        });
-    };
+    }
 
     function openModel(waveId){
       var deferred = $q.defer();
