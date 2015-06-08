@@ -481,6 +481,7 @@ angular.module('SwellRTService',[])
     }
 
     return {
+      restrict: 'AEC',
       require: 'ngModel',
       link: link,
       scope: {
