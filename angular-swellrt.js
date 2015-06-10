@@ -479,10 +479,11 @@ angular.module('SwellRTService',[])
 
   }])
   .directive('swellrtEditor', function() {
-
+    var editorCount = 0;
     function link(scope, element, attrs, ngModelCtrl) {
       if (!element.attr('id')){
-        var id = Math.random().toString(36).substr(2, 5);
+        var id = 'swellrt-editor-' + editorCount;
+        editorCount ++;
         element.attr('id', id);
       }
 
