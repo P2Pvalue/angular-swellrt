@@ -7,7 +7,7 @@
  * Interface service with SwellRT API
  */
 angular.module('SwellRTService',[])
-  .factory('swellRT', ['$rootScope', '$q', function($rootScope, $q){
+  .factory('swellRT', ['$rootScope', '$q', '$timeout', function($rootScope, $q, $timeout){
 
     function diff(a, b) {
       return a.filter(function(i) {return b.indexOf(i) < 0;});
@@ -21,6 +21,7 @@ angular.module('SwellRTService',[])
     var currentModel = {model: {}};
     var loginData;
     var defModel = $q.defer();
+    var copy = {};
 
     window.onSwellRTReady = function() {
       defSwellRT.resolve(window.SwellRT);
@@ -34,17 +35,9 @@ angular.module('SwellRTService',[])
       return defModel.promise;
     }
 
-    var ret = {
-      startSession: startSession,
-      stopSession: stopSession,
-      open: openModel,
-      close: closeModel,
-      create: create,
-      copy: {},
-      model: getModel
-    };
 
     var apply = function (fun) {
+      $timeout(fun());
       var p = $rootScope.$$phase;
       if (p !== '$digest' && p !== '$apply') {
         $rootScope.$apply(fun);
@@ -52,7 +45,7 @@ angular.module('SwellRTService',[])
     };
 
     //dummy TextType Object (used to create a real TextObject where it is attached)
-    ret.SwellrtTextObject = function(text){
+    TextObject = function(text){
       this.getType = function(){
         return 'TextType';
       };
@@ -60,46 +53,46 @@ angular.module('SwellRTService',[])
     };
 
     function startSession(server, user, pass){
-       swellrt.then(function() {
-         window.SwellRT.startSession(
-         server, user, pass,
-         function () {
-           apply(function() {
-             defSession.resolve(window.SwellRT);
+       swellrt.then(function(swellrtApi) {
+         swellrtApi.startSession(
+           server, user, pass,
+           function () {
+             $timeout(function() {
+               defSession.resolve(swellrtApi);
+             });
+           },
+           function (error) {
+             defSession.reject('Error conecting to wavejs server: Try again later: ' + error);
            });
-         },
-         function () {
-           defSession.reject('Error conecting to wavejs server: Try again later');
-         });
        });
     }
 
-    function stopSession(server, user, pass){
-       swellrt.then(function() {
-         window.SwellRT.stopSession();
+    function stopSession(){
+       swellrt.then(function(swellrtApi) {
+         swellrtApi.stopSession();
        });
     }
 
     function openModel(waveId){
       var deferred = $q.defer();
       defModel.notify('Opening ' + waveId + ' model.');
-      session.then(function(api) {
-        api
+      session.then(function(swellrtApi) {
+        swellrtApi
           .openModel(waveId,
                      function (model) {
-                       apply(function() {
+                       $timeout(function() {
                          currentWaveId = waveId;
                          currentModel.model = model;
-                         simplify(model.root, ret.copy, []);
-                         registerEventHandlers(model.root, ret.copy, []);
-                         watchModel(model.root, ret.copy, []);
+                         simplify(model.root, copy, []);
+                         registerEventHandlers(model.root, copy, []);
+                         watchModel(model.root, copy, []);
                          deferred.resolve(model);
-                         defModel.resolve(ret.copy);
+                         defModel.resolve(copy);
                        });
                      },
                      function(error){
                        console.log(error);
-                       apply(function() {
+                       $timeout(function() {
                          deferred.reject(error);
                          defModel.reject(error);
                          currentWaveId = null;
@@ -108,28 +101,29 @@ angular.module('SwellRTService',[])
                      }
                     );
       });
+      // TODO: evaluate wheter return defferred.promise or defModel.promise
       return deferred.promise;
     }
 
     function closeModel(waveId){
-      session.then(function(api) {
-        api.closeModel(waveId);
+      session.then(function(swellrtApi) {
+        swellrtApi.closeModel(waveId);
         currentWaveId = null;
       });
     }
 
     function create(){
-      session.then(function(api) {
+      session.then(function(swellrtApi) {
         var deferred = $q.defer();
-        api.createModel(
+        swellrtApi.createModel(
           function(modelId) {
-            apply(function() {
+            $timeout(function() {
               deferred.resolve(modelId);
             });
             currentWaveId = modelId;
           },
           function(error) {
-            apply(function() {
+            $timeout(function() {
               deferred.reject(error);
               });
           });
@@ -137,6 +131,7 @@ angular.module('SwellRTService',[])
       });
     }
 
+    // TODO 'Type' in *Type does not say anything
     function classSimpleName(o){
       if (typeof o.keySet === 'function'){
         return 'MapType';
@@ -175,9 +170,12 @@ angular.module('SwellRTService',[])
         }
       } else if (value instanceof Object){
         if (isNew){
+          // if it is a map
           if (typeof value.getType !== 'function'){
             o = currentModel.model.createMap();
-          } else if (value.getType() === 'TextType'){
+          }
+          // if it is a TextObject
+          else if (value.getType() === 'TextType'){
             o = currentModel.model.createText(value.text);
           }
         }
@@ -188,12 +186,14 @@ angular.module('SwellRTService',[])
         try{
           obj.add(o);
           }
+        // TODO check why catch and iff not necesary, delete
         catch (e){
         }
       } else if (className === 'MapType'){
         try{
           obj.put(key, o);
         }
+        // TODO check why catch and iff not necesary, delete
         catch (e){
         }
       }
@@ -202,6 +202,7 @@ angular.module('SwellRTService',[])
           try{
             createAttachObject(o, key, val);
             }
+          // TODO manage exception
           catch (e) {
             console.log(e);
           }
@@ -227,6 +228,8 @@ angular.module('SwellRTService',[])
     /**
 
      */
+    // TODO jsdoc & refactor {e,m,p}
+    // TODO for performance & memory: create functions outside registerEventHandlers and refer functions 
     function registerEventHandlers(e, m, p){
 
       depthFirstFunct(
@@ -236,9 +239,10 @@ angular.module('SwellRTService',[])
           SwellRT.events.ITEM_CHANGED,
           function(newStr) {
             setPathValue(mod,path,newStr);
-            apply();
+            $timeout();
           },
           function(error) {
+            // TODO, rise error. By exception?
             console.log(error);
           }
         );
@@ -248,9 +252,9 @@ angular.module('SwellRTService',[])
             SwellRT.events.ITEM_ADDED,
             function(item) {
               var par = path.reduce(function(object,key){return object[key];},mod);
-              // TODO check if change currentModel.model.root by elem works
+              // TODO check if change currentModel.model.root by elem works. Hypothesis: elem = ext
               var ext = path.reduce(function(object,key){return object.get(key);},currentModel.model.root);
-              //var p = path.concat([par.length]);
+
               var p = (path || []).slice();
               p.push('' + (par.length || '0'));
               // TODO check for possible failure due to paralel additions
@@ -264,7 +268,7 @@ angular.module('SwellRTService',[])
                   console.log(e);
                 }
               }
-              apply();
+              $timeout();
             });
           //TODO: check why is not needed!
           // elem.registerEventHandler(SwellRT.events.ITEM_REMOVED,
@@ -313,7 +317,7 @@ angular.module('SwellRTService',[])
               catch (e) {
                 console.log(e);
               }
-              apply();
+              $timeout();
             },
             function(error) {
               console.log(error);
@@ -323,7 +327,7 @@ angular.module('SwellRTService',[])
             function(item) {
               var p = (path || []).slice();
               delete p.reduce(function(object, key){return object[key];}, mod)[item[0]];
-              apply();
+              $timeout();
             },
             function(error) {
               console.log(error);
@@ -407,12 +411,12 @@ angular.module('SwellRTService',[])
                  // TODO check if change currentModel.model.root by e works
                  var m = path.reduce(function(object,k){return object.get(k);}, currentModel.model.root);
                  createAttachObject(m, ''+value, newValue[value]);
-                 apply();
+                 $timeout();
                });
                var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
                angular.forEach(deletedVars, function(value){
                  elem.remove(value);
-                 apply();
+                 $timeout();
                });
            });
         },
@@ -431,12 +435,12 @@ angular.module('SwellRTService',[])
                 // TODO check if change currentModel.model.root by elem works
                 var m = path.reduce(function(object,k){return object.get(k);}, currentModel.model.root);
                 createAttachObject(m, value, newValue[value]);
-                apply();
+                $timeout();
               });
               var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
               angular.forEach(deletedVars, function(value){
                 elem.remove(value);
-                apply();
+                $timeout();
               });
           });
         }
@@ -462,7 +466,18 @@ angular.module('SwellRTService',[])
         }
       );
     }
-    return ret;
+    return {
+      startSession: startSession,
+      stopSession: stopSession,
+      open: openModel,
+      close: closeModel,
+      create: create,
+      copy: copy,
+      model: getModel,
+      TextObject: TextObject,
+    };
+
+
   }])
   .directive('swellrtEditor', function() {
 
