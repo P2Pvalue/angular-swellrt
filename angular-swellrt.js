@@ -45,7 +45,7 @@ angular.module('SwellRTService',[])
     };
 
     //dummy TextType Object (used to create a real TextObject where it is attached)
-    TextObject = function(text){
+    var TextObject = function(text){
       this.getType = function(){
         return 'TextType';
       };
@@ -253,13 +253,12 @@ angular.module('SwellRTService',[])
             function(item) {
               var par = path.reduce(function(object,key){return object[key];},mod);
               // TODO check if change currentModel.model.root by elem works. Hypothesis: elem = ext
-              var ext = path.reduce(function(object,key){return object.get(key);},currentModel.model.root);
 
               var p = (path || []).slice();
               p.push('' + (par.length || '0'));
               // TODO check for possible failure due to paralel additions
               // if it is not a item I added
-              if (ext.size() > par.length){
+              if (elem.size() > par.length){
                 try{
                   simplify(item, mod, p);
                   registerEventHandlers(item, mod, p);
@@ -388,13 +387,13 @@ angular.module('SwellRTService',[])
         function(elem, mod, path){
           $rootScope.$watch(
             function(){
+              // TODO avoid path reduce
               var r = path.reduce(function(object, key){return object[key];}, mod);
               return r;
             },
             function (newValue){
               if (typeof newValue === 'string'){
-                // TODO check if change currentModel.model.root by e works
-                path.reduce(function(object,key){return object.get(key);}, currentModel.model.root).setValue(newValue);
+                elem.setValue(newValue);
               }
             },
             true);
@@ -402,27 +401,27 @@ angular.module('SwellRTService',[])
         function(elem, mod, path){
           $rootScope.$watchCollection(
              function(){
+               // TODO avoid path.reduce
                var r = path.reduce(function(object,key){return object[key];}, mod);
                return r;
              },
              function(newValue, oldValue){
                var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
                angular.forEach(newVals, function(value){
-                 // TODO check if change currentModel.model.root by e works
-                 var m = path.reduce(function(object,k){return object.get(k);}, currentModel.model.root);
-                 createAttachObject(m, ''+value, newValue[value]);
-                 $timeout();
+                 createAttachObject(elem, value.toString(), newValue[value]);
+                 // not needed? $timeout();
                });
                var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
                angular.forEach(deletedVars, function(value){
                  elem.remove(value);
-                 $timeout();
+                 // not needed? $timeout();
                });
            });
         },
         function(elem, mod, path){
           $rootScope.$watchCollection(
             function(){
+              // TODO avoid path.reduce
               var r = path.reduce(function(object,key){return object[key];} , mod);
               return r;
             },
@@ -435,12 +434,12 @@ angular.module('SwellRTService',[])
                 // TODO check if change currentModel.model.root by elem works
                 var m = path.reduce(function(object,k){return object.get(k);}, currentModel.model.root);
                 createAttachObject(m, value, newValue[value]);
-                $timeout();
+                // not needed? $timeout();
               });
               var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
               angular.forEach(deletedVars, function(value){
                 elem.remove(value);
-                $timeout();
+                // not needed? $timeout();
               });
           });
         }
@@ -474,7 +473,7 @@ angular.module('SwellRTService',[])
       create: create,
       copy: copy,
       model: getModel,
-      TextObject: TextObject,
+      TextObject: TextObject
     };
 
 
