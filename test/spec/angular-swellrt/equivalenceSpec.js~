@@ -1,0 +1,10 @@
+'use strict'
+
+describe( 'swellRT', function(){
+  beforeEach(function(){
+    angular.mock.module('SwellRTService');
+  });
+  it('Should be equal true and true', function(){
+    expect('t').toBe('t');
+  });
+});
