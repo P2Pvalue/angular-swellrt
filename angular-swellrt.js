@@ -35,15 +35,6 @@ angular.module('SwellRTService',[])
       return defModel.promise;
     }
 
-
-    var apply = function (fun) {
-      $timeout(fun());
-      var p = $rootScope.$$phase;
-      if (p !== '$digest' && p !== '$apply') {
-        $rootScope.$apply(fun);
-      }
-    };
-
     //dummy TextType Object (used to create a real TextObject where it is attached)
     var TextObject = function(text){
       this.getType = function(){
