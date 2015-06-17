@@ -52,7 +52,7 @@ angular.module('SwellRTService',[])
     };
 
     //dummy TextType Object (used to create a real TextObject where it is attached)
-    SwellrtTextObject = function(text){
+    ret.SwellrtTextObject = function(text){
       this.getType = function(){
         return 'TextType';
       };
