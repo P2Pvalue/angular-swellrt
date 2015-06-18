@@ -1,35 +1,47 @@
 module.exports = function(config) {
-    config.set({
-        basePath: './',
 
-        files: [
-            'node_modules/angular/angular.js',
-            'node_modules/angular-mocks/angular-mocks.js',
-            'angular-swellrt.js',
-            'test/spec/angular-swellrt/**/*[sS]pec.js'
-        ],
+  config.set({
+    basePath: './',
 
-        exclude: [
-        ],
+    files: [
+      'config.js',
+      'node_modules/angular/angular.js',
+      'node_modules/angular-mocks/angular-mocks.js',
+      'angular-swellrt.js',
+      'test/spec/angular-swellrt/**/*[sS]pec.js',
+      {
+        pattern: 'http://swellrt:9898/swellrt/swellrt.nocache.js',
+        watched: true,
+        served: true,
+        included: true,
+      }
+    ],
 
-        autoWatch: true,
+    exclude: [
+    ],
 
-        frameworks: ['jasmine'],
+    autoWatch: true,
 
-        browsers: ['PhantomJS'],
+    frameworks: ['jasmine'],
 
-        plugins: [
-            'karma-jasmine',
-            'karma-junit-reporter',
-//            'karma-chrome-launcher',
-//            'karma-firefox-launcher',
-            'karma-phantomjs-launcher'
-        ],
+    browsers: [// 'PhantomJS',
+               'Chrome'
+              ],
 
-        junitReporter: {
-            outputFile: 'unit.xml',
-            suite: 'unit'
-        }
+    plugins: [
+      'karma-jasmine',
+      'karma-junit-reporter',
+      'karma-chrome-launcher'
+      // 'karma-phantomjs-launcher'
+    ],
 
-    })
+    junitReporter: {
+      outputFile: 'unit.xml',
+      suite: 'unit'
+    },
+
+    browserDisconnectTimeout : 10000, // default 2000
+    browserDisconnectTolerance : 1, // default 0
+    browserNoActivityTimeout : 60000, //default 10000
+  })
 }

@@ -13,28 +13,6 @@ angular.module('SwellRTService',[])
       return a.filter(function(i) {return b.indexOf(i) < 0;});
     }
 
-    var defSwellRT = $q.defer();
-    var swellrt = defSwellRT.promise;
-    var defSession = $q.defer();
-    var session = defSession.promise;
-    var currentWaveId = null;
-    var currentModel = {model: {}};
-    var loginData;
-    var defModel = $q.defer();
-    var copy = {};
-
-    window.onSwellRTReady = function() {
-      defSwellRT.resolve(window.SwellRT);
-    };
-
-    if (window.SwellRT){
-      defSwellRT.resolve(window.SwellRT);
-    }
-
-    function getModel(){
-      return defModel.promise;
-    }
-
     //dummy TextType Object (used to create a real TextObject where it is attached)
     var TextObject = function(text){
       this.getType = function(){
@@ -43,83 +21,14 @@ angular.module('SwellRTService',[])
       this.text = text;
     };
 
-    function startSession(server, user, pass){
-       swellrt.then(function(swellrtApi) {
-         swellrtApi.startSession(
-           server, user, pass,
-           function () {
-             $timeout(function() {
-               defSession.resolve(swellrtApi);
-             });
-           },
-           function (error) {
-             defSession.reject('Error conecting to wavejs server: Try again later: ' + error);
-           });
-       });
-    }
-
-    function stopSession(){
-       swellrt.then(function(swellrtApi) {
-         swellrtApi.stopSession();
-       });
-    }
-
-    function openModel(waveId){
-      var deferred = $q.defer();
-      defModel.notify('Opening ' + waveId + ' model.');
-      session.then(function(swellrtApi) {
-        swellrtApi
-          .openModel(waveId,
-                     function (model) {
-                       $timeout(function() {
-                         currentWaveId = waveId;
-                         currentModel.model = model;
-                         simplify(model.root, copy, []);
-                         registerEventHandlers(model.root, copy, []);
-                         watchModel(model.root, copy, []);
-                         deferred.resolve(model);
-                         defModel.resolve(copy);
-                       });
-                     },
-                     function(error){
-                       console.log(error);
-                       $timeout(function() {
-                         deferred.reject(error);
-                         defModel.reject(error);
-                         currentWaveId = null;
-                         currentModel = {};
-                       });
-                     }
-                    );
+    function proxy(model){
+      var proxy = {};
+      $timeout(function() {
+        simplify(model.root, proxy, []);
+        registerEventHandlers(model.root, proxy, [], model);
+        watchModel(model.root, proxy, [], model);
       });
-      // TODO: evaluate wheter return defferred.promise or defModel.promise
-      return deferred.promise;
-    }
-
-    function closeModel(waveId){
-      session.then(function(swellrtApi) {
-        swellrtApi.closeModel(waveId);
-        currentWaveId = null;
-      });
-    }
-
-    function create(){
-      session.then(function(swellrtApi) {
-        var deferred = $q.defer();
-        swellrtApi.createModel(
-          function(modelId) {
-            $timeout(function() {
-              deferred.resolve(modelId);
-            });
-            currentWaveId = modelId;
-          },
-          function(error) {
-            $timeout(function() {
-              deferred.reject(error);
-              });
-          });
-        return deferred.promise;
-      });
+      return proxy;
     }
 
     // TODO 'Type' in *Type does not say anything
@@ -140,7 +49,7 @@ angular.module('SwellRTService',[])
     }
 
     // Creates and attach (if not attached) an object made from maps, arrays and strings
-    function createAttachObject(obj, key, value) {
+    function createAttachObject(obj, key, value, model) {
 
       // Create
       var o;
@@ -151,23 +60,23 @@ angular.module('SwellRTService',[])
       var isNew = !o;
       if (typeof value === 'string'){
         if (isNew){
-          o = currentModel.model.createString(value);
+          o = model.createString(value);
         } else {
           o.setValue(value);
         }
       } else if (value instanceof Array){
         if (isNew){
-          o = currentModel.model.createList();
+          o = model.createList();
         }
       } else if (value instanceof Object){
         if (isNew){
           // if it is a map
           if (typeof value.getType !== 'function'){
-            o = currentModel.model.createMap();
+            o = model.createMap();
           }
           // if it is a TextObject
           else if (value.getType() === 'TextType'){
-            o = currentModel.model.createText(value.text);
+            o = model.createText(value.text);
           }
         }
       }
@@ -176,7 +85,7 @@ angular.module('SwellRTService',[])
       if (className === 'ListType'){
         try{
           obj.add(o);
-          }
+        }
         // TODO check why catch and iff not necesary, delete
         catch (e){
         }
@@ -191,8 +100,8 @@ angular.module('SwellRTService',[])
       if (typeof value !== 'string'){
         angular.forEach(value, function(val, key){
           try{
-            createAttachObject(o, key, val);
-            }
+            createAttachObject(o, key, val, model);
+          }
           // TODO manage exception
           catch (e) {
             console.log(e);
@@ -220,24 +129,28 @@ angular.module('SwellRTService',[])
 
      */
     // TODO jsdoc & refactor {e,m,p}
-    // TODO for performance & memory: create functions outside registerEventHandlers and refer functions 
-    function registerEventHandlers(e, m, p){
+    // TODO for performance & memory: create functions outside registerEventHandlers and refer functions
+    function registerEventHandlers(e, m, p, model){
 
       depthFirstFunct(
         e, m, p,
         function(elem, mod, path){
-        elem.registerEventHandler(
-          SwellRT.events.ITEM_CHANGED,
-          function(newStr) {
-            setPathValue(mod,path,newStr);
-            $timeout();
-          },
-          function(error) {
-            // TODO, rise error. By exception?
-            console.log(error);
-          }
-        );
-      },
+          elem.registerEventHandler(
+            SwellRT.events.ITEM_CHANGED,
+            function(newStr) {
+              try {
+                setPathValue(mod,path,newStr);
+              } catch (e) {
+                console.log(e);
+              }
+              $timeout();
+            },
+            function(error) {
+              // TODO, rise error. By exception?
+              console.log(error);
+            }
+          );
+        },
         function(elem, mod, path){
           elem.registerEventHandler(
             SwellRT.events.ITEM_ADDED,
@@ -252,8 +165,8 @@ angular.module('SwellRTService',[])
               if (elem.size() > par.length){
                 try{
                   simplify(item, mod, p);
-                  registerEventHandlers(item, mod, p);
-                  watchModel(item, mod, p);
+                  registerEventHandlers(item, mod, p, model);
+                  watchModel(item, mod, p, model);
                 } catch (e) {
                   console.log(e);
                 }
@@ -301,8 +214,8 @@ angular.module('SwellRTService',[])
               p.push(item[0]);
               try {
                 simplify(item[1], mod, p);
-                registerEventHandlers(item[1], mod, p);
-                watchModel(item[1], mod, p);
+                registerEventHandlers(item[1], mod, p, model);
+                watchModel(item[1], mod, p, model);
               }
               catch (e) {
                 console.log(e);
@@ -365,66 +278,72 @@ angular.module('SwellRTService',[])
 
         case 'TextType':
 
-        if (typeof funText === 'function'){
-           funText(e, mod, path);
+          if (typeof funText === 'function'){
+            funText(e, mod, path);
           }
           break;
       }
     }
 
-    function watchModel(e, m, p){
+    function watchModel(e, m, p, model){
       depthFirstFunct(
         e, m, p,
         function(elem, mod, path){
-          $rootScope.$watch(
+          var unwatch = $rootScope.$watch(
             function(){
               // TODO avoid path reduce
-              var r = path.reduce(function(object, key){return object[key];}, mod);
-              return r;
+              try{
+                var r = path.reduce(function(object, key){return object[key];}, mod);
+                if (r === undefined) {
+                  unwatch();
+                  return null;
+                }
+                return r;
+              } catch (e) {
+                if (e instanceof TypeError){
+                  unwatch();
+                  return null;
+                } else {
+                  throw(e);
+                }
+              }
             },
             function (newValue){
+              if (newValue === null) {
+                return;
+              }
               if (typeof newValue === 'string'){
                 elem.setValue(newValue);
               }
-            },
-            true);
+            }, true);
         },
         function(elem, mod, path){
-          $rootScope.$watchCollection(
-             function(){
-               // TODO avoid path.reduce
-               var r = path.reduce(function(object,key){return object[key];}, mod);
-               return r;
-             },
-             function(newValue, oldValue){
-               var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
-               angular.forEach(newVals, function(value){
-                 createAttachObject(elem, value.toString(), newValue[value]);
-                 // not needed? $timeout();
-               });
-               var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
-               angular.forEach(deletedVars, function(value){
-                 elem.remove(value);
-                 // not needed? $timeout();
-               });
-           });
-        },
-        function(elem, mod, path){
-          $rootScope.$watchCollection(
+          var unwatch = $rootScope.$watchCollection(
             function(){
               // TODO avoid path.reduce
-              var r = path.reduce(function(object,key){return object[key];} , mod);
-              return r;
+              try {
+                var r = path.reduce(function(object,key){return object[key];}, mod);
+                if (r === undefined) {
+                  unwatch();
+                  return null;
+                }
+                return r;
+              } catch (e){
+                if (e instanceof TypeError){
+                  unwatch();
+                  return null;
+                } else {
+                  throw(e);
+                }
+              }
             },
             function(newValue, oldValue){
-              // AngularJS introduce $$haskKey property to some objects
-              var oldKeys = Object.keys(oldValue);
-              oldKeys.push('$$hashKey');
-              var newVals = diff(Object.keys(newValue),oldKeys);
+              if (newValue === null) {
+                return;
+              }
+              var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
               angular.forEach(newVals, function(value){
-                // TODO check if change currentModel.model.root by elem works
-                var m = path.reduce(function(object,k){return object.get(k);}, currentModel.model.root);
-                createAttachObject(m, value, newValue[value]);
+                createAttachObject(elem, value.toString(), newValue[value], model);
                 // not needed? $timeout();
               });
               var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
@@ -432,7 +351,44 @@ angular.module('SwellRTService',[])
                 elem.remove(value);
                 // not needed? $timeout();
               });
-          });
+            });
+        },
+        function(elem, mod, path){
+          var unwatch = $rootScope.$watchCollection(
+            function(){
+              try {
+                // TODO avoid path.reduce
+                var r = path.reduce(function(object,key){return object[key];} , mod);
+                if (r === undefined) {
+                  unwatch();
+                  return null;
+                }
+                return r;
+              } catch (e){
+                if (e instanceof TypeError){
+                  unwatch();
+                  return null;
+                } else {
+                  throw(e);
+                }
+              }
+            },
+            function(newValue, oldValue){
+              if (newValue === null) {
+                return;
+              }
+              // AngularJS introduce $$haskKey property to some objects
+              var oldKeys = Object.keys(oldValue);
+              oldKeys.push('$$hashKey');
+              var newVals = diff(Object.keys(newValue),oldKeys);
+              angular.forEach(newVals, function(value){
+                createAttachObject(elem , value, newValue[value], model);
+              });
+              var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
+              angular.forEach(deletedVars, function(value){
+                elem.remove(value);
+              });
+            });
         }
       );
     }
@@ -457,13 +413,7 @@ angular.module('SwellRTService',[])
       );
     }
     return {
-      startSession: startSession,
-      stopSession: stopSession,
-      open: openModel,
-      close: closeModel,
-      create: create,
-      copy: copy,
-      model: getModel,
+      proxy: proxy,
       TextObject: TextObject
     };
 
@@ -481,7 +431,7 @@ angular.module('SwellRTService',[])
 
       ngModelCtrl.$formatters.unshift(function (modelValue) {
         if (modelValue){
-          var editor = window.SwellRT.editor(id);
+          var editor = SwellRT.editor(id);
           editor.edit(modelValue);
         }
       });
@@ -492,7 +442,7 @@ angular.module('SwellRTService',[])
       require: 'ngModel',
       link: link,
       scope: {
-          ngModel : '='
-        }
+        ngModel : '='
+      }
     };
   });

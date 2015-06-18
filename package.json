@@ -4,7 +4,7 @@
   "description": "SwellRT integration for angular.js: 3 way data binding (client, model, server) for real time collaboration over a federated infraestructure thanks to SwellRT technology",
   "main": "angular-swellrt.js",
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp"
   },
   "repository": {
     "type": "git",
@@ -32,7 +32,9 @@
   "devDependencies": {
     "angular-mocks": "^1.3.16",
     "gulp": "^3.9.0",
+    "gulp-connect": "^2.2.0",
     "karma": "^0.12.36",
+    "karma-chrome-launcher": "^0.1.12",
     "karma-cli": "0.0.4",
     "karma-jasmine": "^0.3.5",
     "karma-junit-reporter": "^0.2.2",
