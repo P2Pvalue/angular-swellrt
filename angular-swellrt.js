@@ -173,38 +173,18 @@ angular.module('SwellRTService',[])
               }
               $timeout();
             });
-          //TODO: check why is not needed!
-          // elem.registerEventHandler(SwellRT.events.ITEM_REMOVED,
-          //                        function(item) {
-          // function copy(v1){
-          //   className = classSimpleName(v1);
-          //   var r;
-          //   if (className === 'StringType'){
-          //     r = v1.getValue();
-          //   }
-          //   if (className === 'ListType'){
-          //     r = [];
-          //     for (var i = 0; i < v1.size(); i++){
-          //       r.push(copy(v1.get(i)));
-          //     }
-          //   }
-          //   if (className === 'MapType'){
-          //     r = {};
-          //     angular.forEach(v1.keySet(), function(value, key){
-          //       r[value] = copy(v1.get(value));
-          //     });
-          //   }
-          //   return r;
-          // }
-          // var cp = copy(foo);
-          // var par = path.reduce(function(object, key){return object[key]}, mod);
-          // // TODO if cp in par, delete it
-          // //
-          // apply();
-          // },
-          // function(error) {
-          //   console.log(error);
-          // });
+          elem.registerEventHandler(
+            SwellRT.events.ITEM_REMOVED,
+            function(item) {
+              var par = path.reduce(function(object, key){return object[key];}, mod);
+              angular.forEach(Object.keys(item), function(key){
+                par.splice(item[key], 1);
+              });
+              $timeout();
+            },
+            function(error) {
+              console.log(error);
+            });
         },
         function(elem, mod, path){
           elem.registerEventHandler(
@@ -294,10 +274,6 @@ angular.module('SwellRTService',[])
               // TODO avoid path reduce
               try{
                 var r = path.reduce(function(object, key){return object[key];}, mod);
-                if (r === undefined) {
-                  unwatch();
-                  return null;
-                }
                 return r;
               } catch (e) {
                 if (e instanceof TypeError){
@@ -341,15 +317,18 @@ angular.module('SwellRTService',[])
               if (newValue === null) {
                 return;
               }
+
               var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
               angular.forEach(newVals, function(value){
                 createAttachObject(elem, value.toString(), newValue[value], model);
-                // not needed? $timeout();
               });
               var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
-              angular.forEach(deletedVars, function(value){
+              // added again to be erased in the ITEM_REMOVED SwellRT callback
+              // angular.forEach(deletedVars, function(value){
+              //   createAttachObject(elem, value.toString(), oldValue[value], model);
+              // });
+              angular.forEach(deletedVars.reverse(), function(value){
                 elem.remove(value);
-                // not needed? $timeout();
               });
             });
         },
