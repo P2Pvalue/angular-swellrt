@@ -324,9 +324,9 @@ angular.module('SwellRTService',[])
               });
               var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
               // added again to be erased in the ITEM_REMOVED SwellRT callback
-              // angular.forEach(deletedVars, function(value){
-              //   createAttachObject(elem, value.toString(), oldValue[value], model);
-              // });
+              angular.forEach(deletedVars, function(value){
+                createAttachObject(elem, value.toString(), oldValue[value], model);
+              });
               angular.forEach(deletedVars.reverse(), function(value){
                 elem.remove(value);
               });
