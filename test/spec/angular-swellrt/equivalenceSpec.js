@@ -49,26 +49,45 @@ describe( 'swellRT', function(){
 
          setTimeout(function(){
            $timeout.flush();
-         },1000);
-
-         setTimeout(function(){
            proxy[key] = value;
            $rootScope.$digest();
            expect(model.root.get(key)).toBeDefined();
            expect(model.root.get(key).getValue()).toBe(value);
-         },1500);
-
-         setTimeout(function(){
-           expect(model.root.get(key)).toBeDefined();
            delete proxy[key];
            $rootScope.$digest();
            expect(model.root.get(key)).toBeUndefined();
            done();
-         },2000);
-
+         },500);
        }
        window.SwellRT.openModel(config.swellrt.waveId2, function(m) {model = m; test(done);});
-     }, 20000);
+     }, 5000);
+
+  it('can add and delete string value in SwellRT object from angular-swellRT proxy function',
+     function(done) {
+
+       function test() {
+         var proxy = swellRT.proxy(model);
+
+         var key = 'k';
+         var value = 'stringValue';
+
+         setTimeout(function(){
+           $timeout.flush();
+           var str = model.createString(value);
+           model.root.put(key,str);
+           $rootScope.$digest();
+           expect(model.root.get(key)).toBeDefined();
+           expect(model.root.get(key).getValue()).toBe(value);
+           expect(proxy[key]).toBe(value);
+           model.root.remove(key);
+           $rootScope.$digest();
+           expect(model.root.get(key)).toBeUndefined();
+           expect(proxy[key]).toBeUndefined();
+           done();
+         },500);
+       }
+       window.SwellRT.openModel(config.swellrt.waveId2, function(m) {model = m; test(done);});
+     }, 5000);
 
   it('can add and delete simple object in SwellRT object from angular-swellRT proxy function',
      function(done) {
@@ -79,30 +98,56 @@ describe( 'swellRT', function(){
          var key = 'key2';
          var value = 'stringValue';
 
-
          setTimeout(function(){
            $timeout.flush();
-         },1000);
-
-
-         setTimeout(function(){
            proxy[key] = {value: value};
            $rootScope.$digest();
            expect(model.root.get(key)).toBeDefined();
            expect(model.root.get(key).get('value').getValue()).toBe(value);
-         },1500);
-
-         setTimeout(function(){
            expect(model.root.get(key)).toBeDefined();
            delete proxy[key];
            $rootScope.$digest();
            var m = model.root.get(key);
            expect(m).toBeUndefined();
            done();
-         },2000);
+         },500);
        }
        window.SwellRT.openModel(config.swellrt.waveId, function(m) {model = m; test(done);});
      }, 5000);
+
+  it('can add and delete simple object in SwellRT proxy modifying SwellRT model',
+     function(done) {
+
+       function test() {
+         var proxy = swellRT.proxy(model);
+
+         var key = 'key2';
+         var value = 'stringValue';
+
+         setTimeout(function(){
+           $timeout.flush();
+           var key2 = 'k2';
+           var value2 = 'v2';
+           var map = model.createMap();
+           model.root.put(key, map);
+           var str = model.createString(value);
+           model.root.get(key).put(key2, value2);
+           $rootScope.$digest();
+           expect(model.root.get(key)).toBeDefined();
+           expect(model.root.get(key).get(key2).getValue()).toBe(value2);
+           expect(proxy[key][key2]).toBe(value2);
+           expect(model.root.get(key)).toBeDefined();
+           model.root.remove(key);
+           $rootScope.$digest();
+           var m = model.root.get(key);
+           expect(m).toBeUndefined();
+           expect(proxy[key]).toBeUndefined();
+           done();
+         },500);
+       }
+       window.SwellRT.openModel(config.swellrt.waveId, function(m) {model = m; test(done);});
+     }, 5000);
+
 
   it('can add and delete simple list in SwellRT object from angular-swellRT proxy function',
      function(done) {
@@ -113,39 +158,58 @@ describe( 'swellRT', function(){
          var key = 'key3';
          var value = 'stringValue';
 
-
          setTimeout(function(){
            $timeout.flush();
-         },1000);
-
-
-         setTimeout(function(){
            proxy[key] = [value];
            $rootScope.$digest();
            expect(model.root.get(key)).toBeDefined();
            expect(model.root.get(key).get(0).getValue()).toBe(value);
-         },1500);
-
-         setTimeout(function(){
-           expect(model.root.get(key)).toBeDefined();
            proxy[key].splice(0,1);
            $rootScope.$digest();
            var m = model.root.get(key);
            expect(m.size()).toBe(0);
-           done();
-         },2000);
-
-         setTimeout(function(){
            expect(model.root.get(key)).toBeDefined();
            delete proxy[key];
            $rootScope.$digest();
            var m = model.root.get(key);
            expect(m).toBeUndefined();
            done();
-         },2500);
+         },500);
        }
        window.SwellRT.openModel(config.swellrt.waveId, function(m) {model = m; test(done);});
      }, 5000);
 
+  it('can add and delete simple list in proxy object from SwellRT model',
+     function(done) {
+
+       function test() {
+         var proxy = swellRT.proxy(model);
+
+         var key = 'key6';
+         var value = 'stringValue';
+
+         setTimeout(function(){
+           $timeout.flush();
+           var l = model.createList();
+           var str = model.createString(value);
+           var str2 = model.createString(value);
+           model.root.put(key,l);
+           model.root.get(key).add(str);
+           model.root.get(key).add(str2);
+           $rootScope.$digest();
+           model.root.get(key).remove(0);
+           model.root.get(key).remove(0);
+           $rootScope.$digest();
+           console.log(proxy[key]);
+           expect(proxy[key].length).toBe(0);
+           delete proxy[key];
+           $rootScope.$digest();
+           var m = model.root.get(key);
+           expect(m).toBeUndefined();
+           done();
+         },500);
+       }
+       window.SwellRT.openModel(config.swellrt.waveId, function(m) {model = m; test(done);});
+     }, 5000);
 
 });
