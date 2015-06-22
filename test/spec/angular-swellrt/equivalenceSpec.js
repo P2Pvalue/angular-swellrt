@@ -202,10 +202,75 @@ describe( 'swellRT', function(){
            $rootScope.$digest();
            console.log(proxy[key]);
            expect(proxy[key].length).toBe(0);
-           delete proxy[key];
+           model.root.remove(key);
            $rootScope.$digest();
            var m = model.root.get(key);
            expect(m).toBeUndefined();
+           expect(proxy[key]).toBeUndefined();
+           done();
+         },500);
+       }
+       window.SwellRT.openModel(config.swellrt.waveId, function(m) {model = m; test(done);});
+     }, 5000);
+
+  it('can add and delete list of objects in proxy object from SwellRT model',
+     function(done) {
+
+       function test() {
+         var proxy = swellRT.proxy(model);
+
+         var key = 'key8';
+         var k1 = 'k1';
+         var k2 = 'k2';
+         var value = 'stringValue';
+
+         setTimeout(function(){
+           $timeout.flush();
+           var l = model.createList();
+           var str = model.createString(value);
+           var str2 = model.createString(value);
+           var mod = model.createMap();
+
+           model.root.put(key,l);
+           model.root.get(key).add(mod);
+           model.root.get(key).get(0).put(k1, str);
+           model.root.get(key).get(0).put(k1, str2);
+           $rootScope.$digest();
+           model.root.get(key).remove(0);
+           $rootScope.$digest();
+           expect(proxy[key].length).toBe(0);
+           model.root.remove(key);
+           $rootScope.$digest();
+           var m = model.root.get(key);
+           expect(m).toBeUndefined();
+           expect(proxy[key]).toBeUndefined();
+           done();
+         },500);
+       }
+       window.SwellRT.openModel(config.swellrt.waveId, function(m) {model = m; test(done);});
+     }, 5000);
+
+  it('can add and delete list of objects in proxy object from SwellRT model',
+     function(done) {
+
+       function test() {
+         var proxy = swellRT.proxy(model);
+
+         var key = 'key9';
+         var value = 'stringValue';
+
+         setTimeout(function(){
+           $timeout.flush();
+           proxy[key] = [{'k1': value, 'k2': value}];
+           $rootScope.$digest();
+           proxy[key].splice(0,1);
+           $rootScope.$digest();
+           expect(model.root.get(key).size()).toBe(0);
+           model.root.remove(key);
+           $rootScope.$digest();
+           var m = model.root.get(key);
+           expect(m).toBeUndefined();
+           expect(proxy[key]).toBeUndefined();
            done();
          },500);
        }
