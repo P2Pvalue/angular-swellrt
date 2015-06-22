@@ -321,6 +321,8 @@ angular.module('SwellRTService',[])
               var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
               angular.forEach(newVals, function(value){
                 createAttachObject(elem, value.toString(), newValue[value], model);
+                registerEventHandlers(elem, mod, path, model);
+                watchModel(elem, mod, path, model);
               });
               var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
               // added again to be erased in the ITEM_REMOVED SwellRT callback
