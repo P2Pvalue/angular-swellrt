@@ -93,7 +93,9 @@ angular.module('SwellRTService',[])
         }
       } else if (className === 'MapType'){
         try{
-          obj.put(key, o);
+          if(key !== '$$hashKey'){
+            obj.put(key, o);
+          }
         }
         // TODO check why catch and iff not necesary, delete
         catch (e){
@@ -169,18 +171,20 @@ angular.module('SwellRTService',[])
 
                   // unwatch
                   unwatchMap[path.join()][0]();
+
                   simplify(item, mod, p);
+                  watchModel(item, mod, p, model);
+                  registerEventHandlers(item, mod, p, model);
+
                   // watch
                   var unwatch = unwatchMap[path.join()][1]();
                   unwatchMap[path.join()][0] = unwatch;
-
-                  registerEventHandlers(item, mod, p, model);
-                  watchModel(item, mod, p, model);
+                  $timeout();
                 } catch (e) {
                   console.log(e);
                 }
               }
-              $timeout();
+
             });
           elem.registerEventHandler(
             SwellRT.events.ITEM_REMOVED,
@@ -193,10 +197,10 @@ angular.module('SwellRTService',[])
                 par.splice(item[key], 1);
                 // watch
                 var unwatch = unwatchMap[path.join()][1]();
-                unwatchMap[path.join()][0] = unwatch;        
-
+                unwatchMap[path.join()][0] = unwatch;
+                $timeout();
               });
-              $timeout();
+
             },
             function(error) {
               console.log(error);
@@ -209,21 +213,23 @@ angular.module('SwellRTService',[])
               var p = (path || []).slice();
               p.push(item[0]);
               try {
-               
+
                 // unwatch
                 unwatchMap[path.join()][0]();
+
                 simplify(item[1], mod, p);
+                registerEventHandlers(item[1], mod, p, model);
+                watchModel(item[1], mod, p, model);
+
                 // watch
                 var unwatch = unwatchMap[path.join()][1]();
                 unwatchMap[path.join()][0] = unwatch;
 
-                registerEventHandlers(item[1], mod, p, model);
-                watchModel(item[1], mod, p, model);
+                $timeout();
               }
               catch (e) {
                 console.log(e);
               }
-              $timeout();
             },
             function(error) {
               console.log(error);
@@ -232,13 +238,15 @@ angular.module('SwellRTService',[])
             SwellRT.events.ITEM_REMOVED,
             function(item) {
               var p = (path || []).slice();
+
               // unwatch
               unwatchMap[path.join()][0]();
+
               delete p.reduce(function(object, key){return object[key];}, mod)[item[0]];
-              $timeout();
               // watch
               var unwatch = unwatchMap[path.join()][1]();
               unwatchMap[path.join()][0] = unwatch;
+              $timeout();
             },
             function(error) {
               console.log(error);
@@ -355,8 +363,8 @@ angular.module('SwellRTService',[])
                 var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
                 angular.forEach(newVals, function(value){
                   createAttachObject(elem, value.toString(), newValue[value], model);
-                  watchModel(elem, mod, path, model);
                   registerEventHandlers(elem, mod, path, model);
+                  watchModel(elem, mod, path, model);
 
                 });
                 var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
@@ -364,6 +372,7 @@ angular.module('SwellRTService',[])
                 angular.forEach(deletedVars, function(value){
                   createAttachObject(elem, value.toString(), oldValue[value], model);
                 });
+
                 angular.forEach(deletedVars.reverse(), function(value){
                   elem.remove(value);
                 });
