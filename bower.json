@@ -25,10 +25,10 @@
     "tests"
   ],
   "dependencies": {
-    "angular": "~1.4.0",
-    "jasmine": "~2.3.4"
+    "angular": "1.x"
   },
   "devDependencies": {
+    "jasmine": "~2.3.4",
     "angular-mocks": "~1.4.0"
   }
 }
