@@ -20,13 +20,15 @@ angular.module('SwellRTService',[])
       };
       this.text = text;
     };
+    // to handle unwatch and watch during model changed callbacks from SwellRT
+    var unwatchMap = [];
 
     function proxy(model){
       var proxy = {};
       $timeout(function() {
         simplify(model.root, proxy, []);
-        registerEventHandlers(model.root, proxy, [], model);
         watchModel(model.root, proxy, [], model);
+        registerEventHandlers(model.root, proxy, [], model);
       });
       return proxy;
     }
@@ -164,7 +166,14 @@ angular.module('SwellRTService',[])
               // if it is not a item I added
               if (elem.size() > par.length){
                 try{
+
+                  // unwatch
+                  unwatchMap[path.join()][0]();
                   simplify(item, mod, p);
+                  // watch
+                  var unwatch = unwatchMap[path.join()][1]();
+                  unwatchMap[path.join()][0] = unwatch;
+
                   registerEventHandlers(item, mod, p, model);
                   watchModel(item, mod, p, model);
                 } catch (e) {
@@ -178,7 +187,14 @@ angular.module('SwellRTService',[])
             function(item) {
               var par = path.reduce(function(object, key){return object[key];}, mod);
               angular.forEach(Object.keys(item), function(key){
+
+                // unwatch
+                unwatchMap[path.join()][0]();
                 par.splice(item[key], 1);
+                // watch
+                var unwatch = unwatchMap[path.join()][1]();
+                unwatchMap[path.join()][0] = unwatch;        
+
               });
               $timeout();
             },
@@ -193,7 +209,14 @@ angular.module('SwellRTService',[])
               var p = (path || []).slice();
               p.push(item[0]);
               try {
+               
+                // unwatch
+                unwatchMap[path.join()][0]();
                 simplify(item[1], mod, p);
+                // watch
+                var unwatch = unwatchMap[path.join()][1]();
+                unwatchMap[path.join()][0] = unwatch;
+
                 registerEventHandlers(item[1], mod, p, model);
                 watchModel(item[1], mod, p, model);
               }
@@ -209,8 +232,13 @@ angular.module('SwellRTService',[])
             SwellRT.events.ITEM_REMOVED,
             function(item) {
               var p = (path || []).slice();
+              // unwatch
+              unwatchMap[path.join()][0]();
               delete p.reduce(function(object, key){return object[key];}, mod)[item[0]];
               $timeout();
+              // watch
+              var unwatch = unwatchMap[path.join()][1]();
+              unwatchMap[path.join()][0] = unwatch;
             },
             function(error) {
               console.log(error);
@@ -269,107 +297,123 @@ angular.module('SwellRTService',[])
       depthFirstFunct(
         e, m, p,
         function(elem, mod, path){
-          var unwatch = $rootScope.$watch(
-            function(){
-              // TODO avoid path reduce
-              try{
-                var r = path.reduce(function(object, key){return object[key];}, mod);
-                return r;
-              } catch (e) {
-                if (e instanceof TypeError){
-                  unwatch();
-                  return null;
-                } else {
-                  throw(e);
+          function watch(){
+            var unwatch = $rootScope.$watch(
+              function(){
+                // TODO avoid path reduce
+                try{
+                  var r = path.reduce(function(object, key){return object[key];}, mod);
+                  return r;
+                } catch (e) {
+                  if (e instanceof TypeError){
+                    unwatch();
+                    return null;
+                  } else {
+                    throw(e);
+                  }
                 }
-              }
-            },
-            function (newValue){
-              if (newValue === null) {
-                return;
-              }
-              if (typeof newValue === 'string'){
-                elem.setValue(newValue);
-              }
-            }, true);
+              },
+              function (newValue){
+                if (newValue === null) {
+                  return;
+                }
+                if (typeof newValue === 'string'){
+                  elem.setValue(newValue);
+                }
+              }, true);
+            return unwatch;
+          }
+          var unwatch = watch();
+          unwatchMap[path.join()] = [unwatch, watch];
         },
         function(elem, mod, path){
-          var unwatch = $rootScope.$watchCollection(
-            function(){
-              // TODO avoid path.reduce
-              try {
-                var r = path.reduce(function(object,key){return object[key];}, mod);
-                if (r === undefined) {
-                  unwatch();
-                  return null;
-                }
-                return r;
-              } catch (e){
-                if (e instanceof TypeError){
-                  unwatch();
-                  return null;
-                } else {
-                  throw(e);
-                }
-              }
-            },
-            function(newValue, oldValue){
-              if (newValue === null) {
-                return;
-              }
-
-              var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
-              angular.forEach(newVals, function(value){
-                createAttachObject(elem, value.toString(), newValue[value], model);
-                registerEventHandlers(elem, mod, path, model);
-                watchModel(elem, mod, path, model);
-              });
-              var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
-              // added again to be erased in the ITEM_REMOVED SwellRT callback
-              angular.forEach(deletedVars, function(value){
-                createAttachObject(elem, value.toString(), oldValue[value], model);
-              });
-              angular.forEach(deletedVars.reverse(), function(value){
-                elem.remove(value);
-              });
-            });
-        },
-        function(elem, mod, path){
-          var unwatch = $rootScope.$watchCollection(
-            function(){
-              try {
+          function watch() {
+            var unwatch = $rootScope.$watchCollection(
+              function(){
                 // TODO avoid path.reduce
-                var r = path.reduce(function(object,key){return object[key];} , mod);
-                if (r === undefined) {
-                  unwatch();
-                  return null;
+                try {
+                  var r = path.reduce(function(object,key){return object[key];}, mod);
+                  if (r === undefined) {
+                    unwatch();
+                    return null;
+                  }
+                  return r;
+                } catch (e){
+                  if (e instanceof TypeError){
+                    unwatch();
+                    return null;
+                  } else {
+                    throw(e);
+                  }
                 }
-                return r;
-              } catch (e){
-                if (e instanceof TypeError){
-                  unwatch();
-                  return null;
-                } else {
-                  throw(e);
+              },
+              function(newValue, oldValue){
+                if (newValue === null) {
+                  return;
                 }
-              }
-            },
-            function(newValue, oldValue){
-              if (newValue === null) {
-                return;
-              }
-              // AngularJS introduce $$haskKey property to some objects
-              var oldKeys = Object.keys(oldValue);
-              oldKeys.push('$$hashKey');
-              var newVals = diff(Object.keys(newValue),oldKeys);
-              angular.forEach(newVals, function(value){
-                createAttachObject(elem , value, newValue[value], model);
+
+                var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
+                angular.forEach(newVals, function(value){
+                  createAttachObject(elem, value.toString(), newValue[value], model);
+                  watchModel(elem, mod, path, model);
+                  registerEventHandlers(elem, mod, path, model);
+
+                });
+                var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
+                // added again to be erased in the ITEM_REMOVED SwellRT callback
+                angular.forEach(deletedVars, function(value){
+                  createAttachObject(elem, value.toString(), oldValue[value], model);
+                });
+                angular.forEach(deletedVars.reverse(), function(value){
+                  elem.remove(value);
+                });
               });
-              var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
-              angular.forEach(deletedVars, function(value){
-                elem.remove(value);
+            return unwatch;
+          }
+          var unwatch = watch();
+          unwatchMap[path.join()] = [unwatch, watch];
+        },
+        function(elem, mod, path){
+          function watch() {
+            var unwatch = $rootScope.$watchCollection(
+              function(){
+                try {
+                  // TODO avoid path.reduce
+                  var r = path.reduce(function(object,key){return object[key];} , mod);
+                  if (r === undefined) {
+                    unwatch();
+                    return null;
+                  }
+                  return r;
+                } catch (e){
+                  if (e instanceof TypeError){
+                    unwatch();
+                    return null;
+                  } else {
+                    throw(e);
+                  }
+                }
+              },
+              function(newValue, oldValue){
+                if (newValue === null) {
+                  return;
+                }
+                // AngularJS introduce $$haskKey property to some objects
+                var oldKeys = Object.keys(oldValue);
+                oldKeys.push('$$hashKey');
+                var newVals = diff(Object.keys(newValue),oldKeys);
+                angular.forEach(newVals, function(value){
+                  createAttachObject(elem , value, newValue[value], model);
+                });
+                var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
+                angular.forEach(deletedVars, function(value){
+                  elem.remove(value);
+                });
               });
-            });
+            return unwatch;
+          }
+          var unwatch = watch();
+          unwatchMap[path.join()] = [unwatch, watch];
         }
       );
     }
