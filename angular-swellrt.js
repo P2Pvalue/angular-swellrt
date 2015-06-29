@@ -35,19 +35,7 @@ angular.module('SwellRTService',[])
 
     // TODO 'Type' in *Type does not say anything
     function classSimpleName(o){
-      if (typeof o.keySet === 'function'){
-        return 'MapType';
-      }
-      if (typeof o.size === 'function'){
-        return 'ListType';
-      }
-      if (typeof o.getValue === 'function'){
-        return 'StringType';
-      }
-      if (typeof o.getDelegate === 'function'){
-        return 'TextType';
-      }
-      return 'unknown';
+      return o.type();
     }
 
     // Creates and attach (if not attached) an object made from maps, arrays and strings
