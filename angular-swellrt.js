@@ -151,44 +151,38 @@ angular.module('SwellRTService',[])
               // TODO check if change currentModel.model.root by elem works. Hypothesis: elem = ext
 
               var p = (path || []).slice();
-              p.push('' + (par.length || '0'));
+              p.push('' + item[0]);
               // TODO check for possible failure due to paralel additions
               // if it is not a item I added
-              if (elem.size() > par.length){
-                try{
+              try{
+                // unwatch
+                unwatchMap[path.join()][0]();
 
-                  // unwatch
-                  unwatchMap[path.join()][0]();
+                simplify(item[1], mod, p);
+                watchModel(item[1], mod, p, model);
+                registerEventHandlers(item[1], mod, p, model);
 
-                  simplify(item, mod, p);
-                  watchModel(item, mod, p, model);
-                  registerEventHandlers(item, mod, p, model);
-
-                  // watch
-                  var unwatch = unwatchMap[path.join()][1]();
-                  unwatchMap[path.join()][0] = unwatch;
-                  $timeout();
-                } catch (e) {
-                  console.log(e);
-                }
+                // watch
+                var unwatch = unwatchMap[path.join()][1]();
+                unwatchMap[path.join()][0] = unwatch;
+                $timeout();
+              } catch (e) {
+                console.log(e);
               }
-
             });
           elem.registerEventHandler(
             SwellRT.events.ITEM_REMOVED,
             function(item) {
               var par = path.reduce(function(object, key){return object[key];}, mod);
-              angular.forEach(Object.keys(item), function(key){
+              // unwatch
+              unwatchMap[path.join()][0]();
 
-                // unwatch
-                unwatchMap[path.join()][0]();
-                par.splice(item[key], 1);
-                // watch
-                var unwatch = unwatchMap[path.join()][1]();
-                unwatchMap[path.join()][0] = unwatch;
-                $timeout();
-              });
+              par.splice(item[0], 1);
 
+              // watch
+              var unwatch = unwatchMap[path.join()][1]();
+              unwatchMap[path.join()][0] = unwatch;
+              $timeout();
             },
             function(error) {
               console.log(error);
@@ -351,9 +345,6 @@ angular.module('SwellRTService',[])
                 var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
                 angular.forEach(newVals, function(value){
                   createAttachObject(elem, value.toString(), newValue[value], model);
-                  registerEventHandlers(elem, mod, path, model);
-                  watchModel(elem, mod, path, model);
-
                 });
                 var deletedVars = diff(Object.keys(oldValue), Object.keys(newValue));
                 // added again to be erased in the ITEM_REMOVED SwellRT callback
