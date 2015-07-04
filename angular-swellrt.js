@@ -435,6 +435,7 @@ angular.module('SwellRTService',[])
   .directive('swellrtEditor', function() {
     var editorCount = 0;
     function link(scope, element, attrs, ngModelCtrl) {
+      var editor;
       var id = element.attr('id');
       if (!id){
         id = 'swellrt-editor-' + editorCount;
@@ -444,10 +445,17 @@ angular.module('SwellRTService',[])
 
       ngModelCtrl.$formatters.unshift(function (modelValue) {
         if (modelValue){
-          var editor = SwellRT.editor(id);
+          editor = SwellRT.editor(id);
+          editor.cleanUp();
           editor.edit(modelValue);
         }
       });
+
+      element.on('$destroy', function(){
+        if (editor){
+          editor.cleanUp();
+        }
+      })
     }
 
     return {
