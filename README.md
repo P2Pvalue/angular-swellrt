@@ -35,20 +35,26 @@ angular
   ]).
 ```
 
+#### SwellRT server
+
+You have several options for the SwellRT server:
+
+* Use the demo server at `https://demo-swellrt.p2pvalue.eu`
+* Use the [gulp-docker-swellrt](https://github.com/P2Pvalue/gulp-docker-swellrt) package
+* Use your [own SwellRT server](https://github.com/P2Pvalue/swellrt#setting-up-a-swellrt-server-javascript-api-provider)
+
 
 ### Using a SwellRT model
 
-You can either use you own SwellRT server or use the demo server at `demo-swellrt.p2pvalue.eu`
-
  * *Create a SwellRT user:* SwellRT provides access control and user management. To start, you can just share a user among all the collaborating clients.
 ``` javascript
-  SwellRT.registerUser("http://server.com","user@server.com","password", successCallback, errorCallback);
+  SwellRT.registerUser("http://swellrt-server.net","user@swellrt-server.net","password", successCallback, errorCallback);
 ```
  * *Start a SwellRT session:* 
 ``` javascript
   window.onSwellRTReady = function () {
     window.SwellRT.startSession(
-      "http://server.com","user@server.com","password", successCallback, errorCallback)
+      "http://swellrt-server.net","user@swellrt-server.net","password", successCallback, errorCallback)
     }
 ```
 
