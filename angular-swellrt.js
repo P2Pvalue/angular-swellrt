@@ -464,8 +464,7 @@ angular.module('SwellRTService',[])
             editorDivs
               .addClass('swellrt-placeholder')
               .attr('tabindex', '-1')
-              .attr('placeholder', ph)
-              .attr('id', 'qwe');
+              .attr('placeholder', ph);
             if (editorDivs.length === 1 && editorDivs.html() === '<br>'){
               editorDivs.empty();
             }
