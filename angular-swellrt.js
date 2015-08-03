@@ -448,7 +448,7 @@ angular.module('SwellRTService',[])
           editor = SwellRT.editor(id);
           editor.cleanUp();
           editor.edit(modelValue);
-          var ph = $('#' + id).attr('placeholder');
+          var ph = attrs.placeholder;
           var model = $('#' + id).attr('ng-model');
           if(ph){
 
@@ -464,7 +464,13 @@ angular.module('SwellRTService',[])
             editorDivs
               .addClass('swellrt-placeholder')
               .attr('placeholder', ph);
-            if (editorDivs.length === 1 && editorDivs.html() === '<br>'){
+
+            function emptyPad(){
+              return editorDivs.length === 1
+                && (editorDivs.html() === '<br>' || editorDivs.html() === '');
+            }
+
+            if (emptyPad()){
               editorDivs.empty();
             }
             $('#' + id + '>div')
@@ -474,7 +480,7 @@ angular.module('SwellRTService',[])
                 editorDivs.removeClass('swellrt-placeholder');
               }).blur(
                 function(){
-                  if (editorDivs.length === 1 && editorDivs.html() === '<br>'){
+                  if (emptyPad()){
                   editorDivs.addClass('swellrt-placeholder');
                     editorDivs.empty();
                   }
@@ -487,7 +493,7 @@ angular.module('SwellRTService',[])
         if (editor){
           editor.cleanUp();
         }
-      })
+      });
     }
 
     return {
