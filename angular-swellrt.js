@@ -449,7 +449,6 @@ angular.module('SwellRTService',[])
           editor.cleanUp();
           editor.edit(modelValue);
           var ph = attrs.placeholder;
-          var model = $('#' + id).attr('ng-model');
           if(ph){
 
             //
@@ -460,20 +459,24 @@ angular.module('SwellRTService',[])
               }";
             document.getElementsByTagName("head")[0].appendChild( style );
 
-            var editorDivs = $('#' + id + '>div >ul >div');
+            var editorDiv = element.children();
+
+            var editorDivs = element.children().children().children();
+
             editorDivs
               .addClass('swellrt-placeholder')
               .attr('placeholder', ph);
 
             function emptyPad(){
-              return editorDivs.length === 1
+              return editorDiv.children().children().length === 1
                 && (editorDivs.html() === '<br>' || editorDivs.html() === '');
             }
 
             if (emptyPad()){
               editorDivs.empty();
             }
-            $('#' + id + '>div')
+
+            editorDiv
               .attr('tabindex', '-1')
               .focus(
               function(){
