@@ -106,6 +106,6 @@ Once you get a proxy object of the model, any compatible change will be propagat
   - Add the editor to the view and attach it to the text model:
 
   ``` html
-    <div class="swellrt-editor" ng-model="proxy.myText"></div>
+    <div class="swellrt-editor" ng-model="proxy.myText" placeholder="This is a SwellRT collaborative editor! write here in collaboration with others"></div>
   ```
 
