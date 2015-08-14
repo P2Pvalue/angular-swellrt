@@ -467,7 +467,7 @@ angular.module('SwellRTService',[])
               .addClass('swellrt-placeholder')
               .attr('placeholder', ph);
 
-            function emptyPad(){
+            var emptyPad = function(){
               return editorDiv.children().children().length === 1
                 && (editorDivs.html() === '<br>' || editorDivs.html() === '');
             }
