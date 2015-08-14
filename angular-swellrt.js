@@ -507,4 +507,36 @@ angular.module('SwellRTService',[])
         ngModel : '='
       }
     };
+  })
+  // TODO number of avatars
+  // TODO css class
+  .directive('swellrtAvatars', function() {
+
+    function link(scope, element, attrs) {
+      var attrs = [];
+      // if there is only one name
+      if (typeof scope.ngModel === 'string'){
+        attrs.push({name: scope.ngModel});
+      }
+      // if it is a collection of names:
+      else {
+        angular.forEach(scope.ngModel, function(val){
+          attrs.push({name: val});
+        });
+      }
+      var avatars = SwellRT.utils.avatar(attrs);
+      element.append(avatars);
+      console.log(avatars, attrs);
+      console.log(element.children());
+      console.log(scope);
+    };
+
+    return {
+      restrict: 'AEC',
+      require: 'ngModel',
+      link: link,
+      scope: {
+        ngModel : '='
+      }
+    };
   });
