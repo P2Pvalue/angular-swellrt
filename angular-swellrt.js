@@ -466,7 +466,6 @@ angular.module('SwellRTService',[])
             editorDivs
               .addClass('swellrt-placeholder')
               .attr('placeholder', ph);
-
             var emptyPad = function(){
               return editorDiv.children().children().length === 1
                 && (editorDivs.html() === '<br>' || editorDivs.html() === '');
@@ -478,10 +477,10 @@ angular.module('SwellRTService',[])
 
             editorDiv
               .attr('tabindex', '-1')
-              .focus(
+              .on('focus',
               function(){
                 editorDivs.removeClass('swellrt-placeholder');
-              }).blur(
+              }).on('blur',
                 function(){
                   if (emptyPad()){
                   editorDivs.addClass('swellrt-placeholder');
