@@ -461,7 +461,8 @@ angular.module('SwellRTService',[])
 
             var editorDiv = element.children();
 
-            var editorDivs = element.children().children().children();
+            var editorDivs = angular.element(
+              element.children().children().children()[0]);
 
             editorDivs
               .addClass('swellrt-placeholder')
@@ -525,9 +526,6 @@ angular.module('SwellRTService',[])
       }
       var avatars = SwellRT.utils.avatar(attrs);
       element.append(avatars);
-      console.log(avatars, attrs);
-      console.log(element.children());
-      console.log(scope);
     };
 
     return {
