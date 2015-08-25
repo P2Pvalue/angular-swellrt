@@ -447,6 +447,22 @@ angular.module('SwellRTService',[])
         if (modelValue){
           editor = SwellRT.editor(id);
           editor.cleanUp();
+
+          attrs.$observe('blockEdit', function(value){
+            var editable;
+
+            if (value === 'false'){
+              editable = false;
+            } else if (value === 'true'){
+              editable = true;
+            }
+
+            if (typeof editable !== 'undefined'){
+              editor.setEditing(editable);
+            }
+          });
+
+
           editor.edit(modelValue);
           var ph = attrs.placeholder;
           if(ph){
