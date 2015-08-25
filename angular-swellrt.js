@@ -452,9 +452,9 @@ angular.module('SwellRTService',[])
             var editable;
 
             if (value === 'false'){
-              editable = false;
-            } else if (value === 'true'){
               editable = true;
+            } else if (value === 'true'){
+              editable = false;
             }
 
             if (typeof editable !== 'undefined'){
