@@ -109,3 +109,13 @@ Once you get a proxy object of the model, any compatible change will be propagat
     <div class="swellrt-editor" ng-model="proxy.myText" placeholder="This is a SwellRT collaborative editor! write here in collaboration with others" block-edit="false"></div>
   ```
    where ng-model takes the value of the TextObject, and placeholder and block edit are optional parameters to show a placeholder when the TextObject is empty and to block/allow editions of the editor's content.
+
+
+### Other features
+
+#### Avatars
+
+  a collection of generated avatars can be obtained with the directive ```swellrtAvatars``` which receives a list of user names and returns avatars built with their initials. This feature is based in [SwellRT avatars](https://github.com/P2Pvalue/swellrt/wiki/Extras#avatars)
+  ``` html
+    <div class="swellrt-avatars" ng-model="[foo@bar.net, foobar@baz.com]" num-avatars="3"></div>
+  ```
