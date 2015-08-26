@@ -531,7 +531,9 @@ angular.module('SwellRTService',[])
     function link(scope, element, attrs, ngModel) {
 
       scope.$watch('ngModel', function(value){
-
+        if (!value || value.length === 0){
+          return;
+        }
         var avatarAttrs = [];
         // if there is only one name
         if (typeof value === 'string'){
@@ -543,6 +545,12 @@ angular.module('SwellRTService',[])
             avatarAttrs.push({name: val});
           });
         }
+
+        scope.swellrtAvatarOptions.numberOfAvatars =
+          Math.min(
+            avatarAttrs.length,
+            scope.swellrtAvatarOptions.numberOfAvatars
+          );
 
         if (window.SwellRT){
           var avatars = window.SwellRT.utils.avatar(avatarAttrs, scope.swellrtAvatarOptions);
