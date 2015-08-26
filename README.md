@@ -117,5 +117,7 @@ Once you get a proxy object of the model, any compatible change will be propagat
 
   a collection of generated avatars can be obtained with the directive ```swellrtAvatars``` which receives a list of user names and returns avatars built with their initials. This feature is based in [SwellRT avatars](https://github.com/P2Pvalue/swellrt/wiki/Extras#avatars)
   ``` html
-    <div class="swellrt-avatars" ng-model="[foo@bar.net, foobar@baz.com]" num-avatars="3"></div>
+    <div class="swellrt-avatars" ng-model="[foo@bar.net, foobar@baz.com]" swellrt-avatar-options = "{numberOfAvatars : 3}"></div>
   ```
+
+See [SwellRT avatars](https://github.com/P2Pvalue/swellrt/wiki/Extras#avatars) to learn what can be used in swellrt-avat-options parameter (size, number of avatars, etc).
