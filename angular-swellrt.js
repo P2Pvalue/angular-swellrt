@@ -543,10 +543,12 @@ angular.module('SwellRTService',[])
             avatarAttrs.push({name: val});
           });
         }
-        var avatars = SwellRT.utils.avatar(avatarAttrs, {numberOfAvatars: Math.min(scope.numAvatars, avatarAttrs.length)});
 
-        element.empty().append(avatars);
+        if (window.SwellRT){
+          var avatars = window.SwellRT.utils.avatar(avatarAttrs, scope.swellrtAvatarOptions);
 
+          element.empty().append(avatars);
+        }
       }, true);
     }
     return {
@@ -555,7 +557,7 @@ angular.module('SwellRTService',[])
       link: link,
       scope: {
         ngModel: '=',
-        numAvatars: '='
+        swellrtAvatarOptions: '='
       }
     };
   });
