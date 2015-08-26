@@ -546,11 +546,13 @@ angular.module('SwellRTService',[])
           });
         }
 
-        scope.swellrtAvatarOptions.numberOfAvatars =
-          Math.min(
-            avatarAttrs.length,
-            scope.swellrtAvatarOptions.numberOfAvatars
-          );
+        if (scope.swellrtAvatarOptions){
+          scope.swellrtAvatarOptions.numberOfAvatars =
+            Math.min(
+              avatarAttrs.length,
+              scope.swellrtAvatarOptions.numberOfAvatars
+            );
+        }
 
         if (window.SwellRT){
           var avatars = window.SwellRT.utils.avatar(avatarAttrs, scope.swellrtAvatarOptions);
