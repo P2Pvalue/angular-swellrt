@@ -23,14 +23,20 @@ angular.module('SwellRTService',[])
     // to handle unwatch and watch during model changed callbacks from SwellRT
     var unwatchMap = [];
 
-    function proxy(model){
-      var proxy = {};
+    function proxy(model, ProxyClass) {
+      var proxyObj;      
+      if (ProxyClass){
+        proxyObj = new ProxyClass();
+      } else {
+        proxyObj = {};
+      }
+
       $timeout(function() {
-        simplify(model.root, proxy, []);
-        watchModel(model.root, proxy, [], model);
-        registerEventHandlers(model.root, proxy, [], model);
+        simplify(model.root, proxyObj, []);
+        watchModel(model.root, proxyObj, [], model);
+        registerEventHandlers(model.root, proxyObj, [], model);
       });
-      return proxy;
+      return proxyObj;
     }
 
     // TODO 'Type' in *Type does not say anything
