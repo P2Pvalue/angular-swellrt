@@ -450,7 +450,11 @@ angular.module('SwellRTService',[])
 
       ngModelCtrl.$formatters.unshift(function (modelValue) {
         if (modelValue){
-          editor = SwellRT.editor(id);
+
+          if (!editor){
+            editor = SwellRT.editor(id);
+          }
+
           editor.cleanUp();
           editor.edit(modelValue);
 
