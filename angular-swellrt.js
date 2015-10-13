@@ -24,7 +24,7 @@ angular.module('SwellRTService',[])
     var unwatchMap = [];
 
     function proxy(model, ProxyClass) {
-      var proxyObj;      
+      var proxyObj;
       if (ProxyClass){
         proxyObj = new ProxyClass();
       } else {
@@ -452,23 +452,30 @@ angular.module('SwellRTService',[])
         if (modelValue){
           editor = SwellRT.editor(id);
           editor.cleanUp();
+          editor.edit(modelValue);
 
-          attrs.$observe('blockEdit', function(value){
+          var blockEditor = function(isBlocked){
+
             var editable;
 
-            if (value === 'false'){
+            if (isBlocked === 'false'){
               editable = true;
-            } else if (value === 'true'){
+            } else if (isBlocked === 'true'){
               editable = false;
             }
 
             if (typeof editable !== 'undefined'){
               editor.setEditing(editable);
             }
-          });
 
+          };
 
-          editor.edit(modelValue);
+          if (attrs.blockEdit){
+            blockEditor(attrs.blockEdit);
+          }
+
+          attrs.$observe('blockEdit', blockEditor);
+
           var ph = attrs.placeholder;
           if(ph){
 
