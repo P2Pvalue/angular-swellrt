@@ -486,7 +486,7 @@ angular.module('SwellRTService',[])
             //
             var style = document.createElement('style');
             style.type = 'text/css';
-            style.innerHTML = ".swellrt-placeholder:empty:not(:focus):before { \
+            style.innerHTML = ".swellrt-placeholder:empty:before { \
               content: attr(placeholder) \
               }";
             document.getElementsByTagName("head")[0].appendChild( style );
@@ -510,13 +510,9 @@ angular.module('SwellRTService',[])
 
             editorDiv
               .attr('tabindex', '-1')
-              .on('focus',
-              function(){
-                editorDivs.removeClass('swellrt-placeholder');
-              }).on('blur',
+              .on('blur',
                 function(){
                   if (emptyPad()){
-                  editorDivs.addClass('swellrt-placeholder');
                     editorDivs.empty();
                   }
                 });
