@@ -106,9 +106,12 @@ Once you get a proxy object of the model, any compatible change will be propagat
   - Add the editor to the view and attach it to the text model:
 
   ``` html
-    <div class="swellrt-editor" ng-model="proxy.myText" placeholder="This is a SwellRT collaborative editor! write here in collaboration with others" block-edit="false"></div>
+    <div class="swellrt-editor" ng-model="proxy.myText" placeholder="This is a SwellRT collaborative editor! write here in collaboration with others" block-edit="false" swellrt-editor-on-ready="callback()"></div>
   ```
-   where ng-model takes the value of the TextObject, and placeholder and block edit are optional parameters to show a placeholder when the TextObject is empty and to block/allow editions of the editor's content.
+     - `ng-model` takes the value of the TextObject
+     - `placeholder` is an optional parameter to show a placeholder when the TextObject is empty
+     - `block-edit` is an optional parameters block/allow editions of the editor's content.
+     - `swellrt-editor-on-ready` allows to execute an scope function after the editor is built
 
 
 ### Other features

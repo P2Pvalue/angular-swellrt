@@ -439,6 +439,7 @@ angular.module('SwellRTService',[])
   }])
   .directive('swellrtEditor', function() {
     var editorCount = 0;
+
     function link(scope, element, attrs, ngModelCtrl) {
       var editor;
       var id = element.attr('id');
@@ -517,6 +518,8 @@ angular.module('SwellRTService',[])
                   }
                 });
           }
+
+          scope.onReady();
         }
       });
 
@@ -532,7 +535,8 @@ angular.module('SwellRTService',[])
       require: 'ngModel',
       link: link,
       scope: {
-        ngModel : '='
+        ngModel: '=',
+        onReady: '&swellrtEditorOnReady' 
       }
     };
   })
