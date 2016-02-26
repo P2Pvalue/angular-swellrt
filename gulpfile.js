@@ -11,6 +11,7 @@ var config = {
 var gulp = require('gulp');
 var karma = require('karma').server;
 var connect = require('gulp-connect');
+var release = require('gulp-release-tasks')(gulp);
 
 // default task is to run test
 gulp.task('default', function(done) {
