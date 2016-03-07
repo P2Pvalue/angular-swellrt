@@ -152,8 +152,6 @@ angular.module('SwellRTService',[])
           elem.registerEventHandler(
             SwellRT.events.ITEM_ADDED,
             function(item) {
-              var par = path.reduce(function(object,key){return object[key];},mod);
-              // TODO check if change currentModel.model.root by elem works. Hypothesis: elem = ext
 
               var p = (path || []).slice();
               p.push('' + item[0]);
@@ -487,10 +485,10 @@ angular.module('SwellRTService',[])
             //
             var style = document.createElement('style');
             style.type = 'text/css';
-            style.innerHTML = ".swellrt-placeholder:empty:before { \
-              content: attr(placeholder) \
-              }";
-            document.getElementsByTagName("head")[0].appendChild( style );
+            style.innerHTML = '.swellrt-placeholder:empty:before {' +
+              'content: attr(placeholder)' +
+            '}';
+            document.getElementsByTagName('head')[0].appendChild( style );
 
             var editorDiv = element.children();
 
@@ -501,9 +499,9 @@ angular.module('SwellRTService',[])
               .addClass('swellrt-placeholder')
               .attr('placeholder', ph);
             var emptyPad = function(){
-              return editorDiv.children().children().length === 1
-                && (editorDivs.html() === '<br>' || editorDivs.html() === '');
-            }
+              return editorDiv.children().children().length === 1 &&
+                (editorDivs.html() === '<br>' || editorDivs.html() === '');
+            };
 
             if (emptyPad()){
               editorDivs.empty();
@@ -536,7 +534,7 @@ angular.module('SwellRTService',[])
       link: link,
       scope: {
         ngModel: '=',
-        onReady: '&swellrtEditorOnReady' 
+        onReady: '&swellrtEditorOnReady'
       }
     };
   })
@@ -544,7 +542,7 @@ angular.module('SwellRTService',[])
   // TODO css class
   .directive('swellrtAvatars', function() {
 
-    function link(scope, element, attrs, ngModel) {
+    function link(scope, element) {
 
       scope.$watch('ngModel', function(value){
         if (!value || value.length === 0){
