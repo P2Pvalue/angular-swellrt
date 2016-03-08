@@ -30,7 +30,21 @@ describe( 'swellRT', function(){
   }));
 
   afterEach(function(){
-    window.SwellRT.closeModel(config.swellrt.waveId);
+    try {
+      window.SwellRT.closeModel(config.swellrt.waveId2);
+    } catch (e){
+      if (e!== 'INVALID_ID_EXCEPTION'){
+        throw e;
+      }
+    }
+    try {
+      window.SwellRT.closeModel(config.swellrt.waveId);
+    }
+    catch (e){
+      if (e!== 'INVALID_ID_EXCEPTION'){
+        throw e;
+      }
+    }
     window.SwellRT.stopSession();
   });
 
