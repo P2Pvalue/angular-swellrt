@@ -57,10 +57,11 @@ angular.module('SwellRTService',[])
         proxyObj = {};
       }
 
-      simplify(model.root, proxyObj, []);
-      watchModel(model.root, proxyObj, [], model);
-      registerEventHandlers(model.root, proxyObj, [], model);
-
+      $timeout(function() {
+        simplify(model.root, proxyObj, []);
+        watchModel(model.root, proxyObj, [], model);
+        registerEventHandlers(model.root, proxyObj, [], model);
+      });
       return proxyObj;
     }
 
