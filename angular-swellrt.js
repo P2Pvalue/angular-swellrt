@@ -20,6 +20,32 @@ angular.module('SwellRTService',[])
       };
       this.text = text;
     };
+
+    var FileObject = function(file){
+
+      this.getType = function(){
+        return 'FileType';
+      };
+
+      this.setValue = function(newValue){
+        if (this.swellRTFile !== undefined) {
+          this.swellRTFile.setValue(newValue);
+        } else {
+          this.swellRTFile = newValue;
+        }
+      };
+
+      this.file = file;
+
+      this.getUrl = function(){
+        if (this.swellRTFile !== undefined){
+          return this.swellRTFile.url();
+        } else {
+          return undefined;
+        }
+      };
+    };
+
     // to handle unwatch and watch during model changed callbacks from SwellRT
     var unwatchMap = [];
 
@@ -41,6 +67,29 @@ angular.module('SwellRTService',[])
     // TODO 'Type' in *Type does not say anything
     function classSimpleName(o){
       return o.type();
+    }
+
+    // Attaches the object <o> to <obj> at key <key>
+    function attach(obj, o, key) {
+      // Attach
+      var className = classSimpleName(obj);
+      if (className === 'ListType'){
+        try{
+          obj.add(o);
+        }
+        // TODO check why catch and iff not necesary, delete
+        catch (e){
+        }
+      } else if (className === 'MapType'){
+        try{
+          if(key !== '$$hashKey'){
+            obj.put(key, o);
+          }
+        }
+        // TODO check why catch and iff not necesary, delete
+        catch (e){
+        }
+      }
     }
 
     // Creates and attach (if not attached) an object made from maps, arrays and strings
@@ -73,28 +122,30 @@ angular.module('SwellRTService',[])
           else if (value.getType() === 'TextType'){
             o = model.createText(value.text);
           }
-        }
-      }
-      // Attach
-      var className = classSimpleName(obj);
-      if (className === 'ListType'){
-        try{
-          obj.add(o);
-        }
-        // TODO check why catch and iff not necesary, delete
-        catch (e){
-        }
-      } else if (className === 'MapType'){
-        try{
-          if(key !== '$$hashKey'){
-            obj.put(key, o);
+          // if it is a FileObject
+          else if (value.getType() === 'FileType'){
+            model.createFile(value, function(response){
+              if (response.error) {
+                // The file couldn't be uploaded
+                console.log(response.error);
+              } else {
+                if (isNew){
+                  attach(obj, response, key);
+                } else {
+                  o.setValue(response);
+                }
+              }
+            });
           }
         }
-        // TODO check why catch and iff not necesary, delete
-        catch (e){
-        }
       }
-      if (typeof value !== 'string'){
+
+      if (o){
+        attach(obj, o, key);
+      }
+
+      if (typeof value !== 'string' &&
+        value.getType !== 'FileType'){
         angular.forEach(value, function(val, key){
           try{
             createAttachObject(o, key, val, model);
@@ -236,13 +287,33 @@ angular.module('SwellRTService',[])
             function(error) {
               console.log(error);
             });
+        },
+        // TextType
+        undefined,
+        // FileType
+        function(elem, mod, path){
+          elem.registerEventHandler(
+            SwellRT.events.ITEM_CHANGED,
+            function(newStr) {
+              try {
+                setPathValue(mod,path,newStr);
+              } catch (e) {
+                console.log(e);
+              }
+              $timeout();
+            },
+            function(error) {
+              // TODO, rise error. By exception?
+              console.log(error);
+            }
+          );
         }
       );
     }
 
     // visits all nodes of the model and depending on the type (string, list, map or text)
     // call a function of the params
-    function depthFirstFunct(e, mod, path, funStr, funList, funMap, funText){
+    function depthFirstFunct(e, mod, path, funStr, funList, funMap, funText, funFile){
       var className = classSimpleName(e);
       switch (className) {
 
@@ -283,7 +354,14 @@ angular.module('SwellRTService',[])
             funText(e, mod, path);
           }
           break;
-      }
+
+        case 'FileType':
+          if (typeof funFile === 'function'){
+            funFile(e, mod, path);
+          }
+          break;
+
+        }
     }
 
     function watchModel(e, m, p, model){
@@ -425,12 +503,16 @@ angular.module('SwellRTService',[])
         },
         function(elem, mod, path) {
           setPathValue(mod, path, elem);
+        },
+        function(elem, mod, path) {
+          setPathValue(mod, path, elem);
         }
       );
     }
     return {
       proxy: proxy,
-      TextObject: TextObject
+      TextObject: TextObject,
+      FileObject: FileObject
     };
 
 
