@@ -14,37 +14,55 @@ angular.module('SwellRTService',[])
     }
 
     //dummy TextType Object (used to create a real TextObject where it is attached)
-    var TextObject = function(text){
-      this.getType = function(){
+    class TextObject {
+      constructor (text){
+        this.text = text;
+      }
+
+      type() {
         return 'TextType';
-      };
-      this.text = text;
-    };
+      }
+    }
 
-    var FileObject = function(file){
+    this.TextObject = TextObject;
 
-      this.getType = function(){
+    class FileObject {
+      constructor (file){
+        this.file = file;
+        this._fileDef = $q.defer();
+        this.swellRTFile = this._fileDef.promise;
+        this._url = undefined;
+      }
+
+      type (){
         return 'FileType';
-      };
+      }
 
-      this.setValue = function(newValue){
-        if (this.swellRTFile !== undefined) {
-          this.swellRTFile.setValue(newValue);
-        } else {
-          this.swellRTFile = newValue;
-        }
-      };
+      setValue (newValue){
+          this._fileDef.resolve(newValue);
+          this._url = newValue.getUrl();
+          $timeout();
+      }
 
-      this.file = file;
+      getValue(){
+        return this.swellRTFile;
+      }
 
-      this.getUrl = function(){
-        if (this.swellRTFile !== undefined){
-          return this.swellRTFile.url();
-        } else {
-          return undefined;
-        }
-      };
-    };
+      // returns a promise
+      getUrl (){
+        this._urlDef = $q.defer();
+        this.swellRTFile.then(function(f){
+          this._urlDef.resolve(f.getUrl());
+        });
+        return this._urlDef.promise;
+      }
+
+      get url(){
+        return this._url;
+      }
+    }
+
+    this.FileObject = FileObject;
 
     // to handle unwatch and watch during model changed callbacks from SwellRT
     var unwatchMap = [];
@@ -113,49 +131,51 @@ angular.module('SwellRTService',[])
           o = model.createList();
         }
       } else if (value instanceof Object){
-        if (isNew){
-          // if it is a map
-          if (typeof value.getType !== 'function'){
-            o = model.createMap();
-          }
-          // if it is a TextObject
-          else if (value.getType() === 'TextType'){
-            o = model.createText(value.text);
-          }
-          // if it is a FileObject
-          else if (value.getType() === 'FileType'){
-            model.createFile(value, function(response){
-              if (response.error) {
-                // The file couldn't be uploaded
-                console.log(response.error);
+        // if it is a map
+        if (isNew && typeof value.type !== 'function'){
+          o = model.createMap();
+        }
+        // if it is a new TextObject
+        else if ( isNew && value.type() === 'TextType'){
+          o = model.createText(value.text);
+        }
+        // if it is a FileObject
+        else if (typeof value.type === 'function' && value.type() === 'FileType'){
+          model.createFile(value.file, function(response){
+            if (response.error) {
+              // The file couldn't be uploaded
+              console.log(response.error);
+            } else {
+              if (isNew){
+                value.setValue(response);
+                attach(obj, response, key);
+                $timeout();
               } else {
-                if (isNew){
-                  attach(obj, response, key);
-                } else {
-                  o.setValue(response);
-                }
+                o.setValue(response);
+                $timeout();
               }
-            });
-          }
+            }
+          });
         }
       }
 
       if (o){
         attach(obj, o, key);
+        if (typeof value !== 'string' && !(typeof value.type === 'function' && value.type() !== 'FileType') )
+         {
+          angular.forEach(value, function(val, key){
+            try{
+              createAttachObject(o, key, val, model);
+            }
+            // TODO manage exception
+            catch (e) {
+              console.log(e);
+            }
+          });
+        }
       }
 
-      if (typeof value !== 'string' &&
-        value.getType !== 'FileType'){
-        angular.forEach(value, function(val, key){
-          try{
-            createAttachObject(o, key, val, model);
-          }
-          // TODO manage exception
-          catch (e) {
-            console.log(e);
-          }
-        });
-      }
+
     }
 
     function setPathValue(obj, path, value){
@@ -187,7 +207,7 @@ angular.module('SwellRTService',[])
             SwellRT.events.ITEM_CHANGED,
             function(newStr) {
               try {
-                setPathValue(mod,path,newStr);
+                setPathValue(mod, path, newStr);
               } catch (e) {
                 console.log(e);
               }
@@ -289,14 +309,15 @@ angular.module('SwellRTService',[])
             });
         },
         // TextType
-        undefined,
+         undefined,
         // FileType
         function(elem, mod, path){
           elem.registerEventHandler(
             SwellRT.events.ITEM_CHANGED,
-            function(newStr) {
+            function(newValue) {
+              var r = path.reduce(function(object, key){return object[key];}, mod);
               try {
-                setPathValue(mod,path,newStr);
+                r.setValue(elem);
               } catch (e) {
                 console.log(e);
               }
@@ -331,7 +352,7 @@ angular.module('SwellRTService',[])
             var el = e.get(value);
             var p = (path || []).slice();
             p.push(value);
-            depthFirstFunct(el, mod, p, funStr, funList, funMap, funText);
+            depthFirstFunct(el, mod, p, funStr, funList, funMap, funText, funFile);
           });
 
           break;
@@ -343,7 +364,7 @@ angular.module('SwellRTService',[])
           for(var i = 0; i < keyNum; i++){
             var p = (path || []).slice();
             p.push('' + i);
-            depthFirstFunct(e.get(i), mod, p, funStr, funList, funMap, funText);
+            depthFirstFunct(e.get(i), mod, p, funStr, funList, funMap, funText, funFile);
           }
 
           break;
@@ -424,6 +445,7 @@ angular.module('SwellRTService',[])
                 }
 
                 var newVals = diff(Object.keys(newValue), Object.keys(oldValue));
+
                 angular.forEach(newVals, function(value){
                   createAttachObject(elem, value.toString(), newValue[value], model);
                 });
@@ -483,6 +505,44 @@ angular.module('SwellRTService',[])
           }
           var unwatch = watch();
           unwatchMap[path.join()] = [unwatch, watch];
+        },
+        undefined,
+        function(elem, mod, path){
+          function watch(){
+            var unwatch = $rootScope.$watch(
+              function(){
+                try{
+                  var r = path.reduce(function(object, key){return object[key];}, mod);
+                  if (typeof r !== 'string'){
+                    return r.file || r.url;
+                  }
+                  return undefined;
+                } catch (e) {
+                  if (e instanceof TypeError){
+                    unwatch();
+                    return null;
+                  } else {
+                    throw(e);
+                  }
+                }
+              },
+              function (newValue){
+                if (newValue === undefined){
+                  //return;
+                } else {
+                  var r = path.reduce(function(object, key){return object[key];}, mod);
+                  if (r.file !== undefined) {
+                    model.createFile(r.file, function(newFile){
+                      elem.setValue(newFile);
+                      $timeout();
+                    });
+                  }
+                }
+              });
+            return unwatch;
+          }
+          var unwatch = watch();
+          unwatchMap[path.join()] = [unwatch, watch];
         }
       );
     }
@@ -505,7 +565,10 @@ angular.module('SwellRTService',[])
           setPathValue(mod, path, elem);
         },
         function(elem, mod, path) {
-          setPathValue(mod, path, elem);
+          var f = new FileObject();
+          f.setValue(elem);
+
+          setPathValue(mod, path, f);
         }
       );
     }

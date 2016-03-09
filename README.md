@@ -7,6 +7,7 @@ Use collaborative javascript models composed by:
   * Maps and lists
   * Strings values
   * Rich\-Text values
+  * Attachments
 
 ### Ready to use collaborative rich-text editor:
 Use collaborative text edition in your angular projects thanks to the ready to use rich text collaborative editor from SwellRT.
@@ -22,10 +23,10 @@ The communication and storage of your Angular models has never been so easy: fir
 ### Install
 
 * Angular-SwellRT is available at [bower](http://bower.io), to use it just run
-```bower install angular-swellrt```. You can also directly download this repository 
+```bower install angular-swellrt```. You can also directly download this repository
 
 * Include angular-swellrt.js source to your angular project:
- - add `./bower_components/angular-swellrt/angular-swellrt.js'` as a javascript source file.
+ - add `./bower_components/angular-swellrt/dist/angular-swellrt.js'` as a javascript source file.
  - add SwellRTService to your angular module:
 ``` javascript
 angular
@@ -50,7 +51,7 @@ You have several options for the SwellRT server:
 ``` javascript
   SwellRT.registerUser("http://swellrt-server.net","user@swellrt-server.net","password", successCallback, errorCallback);
 ```
- * *Start a SwellRT session:* 
+ * *Start a SwellRT session:*
 ``` javascript
   window.onSwellRTReady = function () {
     window.SwellRT.startSession(
@@ -63,7 +64,7 @@ You have several options for the SwellRT server:
   var modelId = window.SwellRT.createModel();
 ```
    the return value `modelId` is the identifier of the data model, used to access it as explained next.
- 
+
  * *Create the collaborative proxy object:*  create a proxy object that changes when SwellRT model changes and propagate the changes you do on it:
 
 ``` javascript
@@ -80,8 +81,8 @@ You have several options for the SwellRT server:
   * Maps and lists
   * Strings values
   * Rich\-Text values
-  
-  
+
+
 Once you get a proxy object of the model, any compatible change will be propagated, some examples are given bellow:
 
 ``` javascript
@@ -112,6 +113,16 @@ Once you get a proxy object of the model, any compatible change will be propagat
      - `placeholder` is an optional parameter to show a placeholder when the TextObject is empty
      - `block-edit` is an optional parameters block/allow editions of the editor's content.
      - `swellrt-editor-on-ready` allows to execute an scope function after the editor is built
+
+### Files and attachements: Attach files to your collaborative model structure and store them in the SwellRT server. Following example shows how:
+  - Create the attachement object: In a proxy of a SwellRT model (see instructions above), add a FileObject:
+
+  ```javascript
+  // Get a HTML5 File object from an input element.
+  var inputFile = document.getElementById("inputFileElementId").files[0];
+  $scope.proxy.myAttachement = new swellRT.FileObject(inputFile);
+  ```
+  - This uploads the attachement, when it is ready, its url will be accesible from `$scope.proxy.myAttachement.url`. Also, a promise is return by the `getUrl` method, which will be resolved when the file is succesfully uploaded: `$scope.proxy.myAttachement.getUrl(function(url){console.log('the attachement url:', url)})`
 
 
 ### Other features

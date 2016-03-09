@@ -13,6 +13,7 @@ var config = {
 var gulp = require('gulp');
 var karma = require('karma').server;
 var connect = require('gulp-connect');
+var babel = require('gulp-babel');
 
 // default task is to run test
 gulp.task('default', function(done) {
@@ -37,4 +38,20 @@ gulp.task('test', function(done) {
      configFile: __dirname + '/karma.conf.js'
    }, done);
   connect.serverClose();
+});
+
+gulp.task('live:dist', function(){
+  gulp.start('dist');
+  gulp.watch(__dirname + '/angular-swellrt.js',
+  function(){
+    gulp.start('dist');
+  });
+});
+
+gulp.task('dist', function(){
+  gulp.src(__dirname + '/angular-swellrt.js')
+    .pipe(babel({
+      presets: ['es2015']
+    }))
+    .pipe(gulp.dest(__dirname + '/dist'));
 });
