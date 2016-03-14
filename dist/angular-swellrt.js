@@ -408,6 +408,8 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
           }
           if (typeof newValue === 'string') {
             elem.setValue(newValue);
+          } else if (typeof newValue === 'undefined') {
+            elem.setValue(undefined);
           }
         }, true);
         return unwatch;
