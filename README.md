@@ -98,6 +98,17 @@ Once you get a proxy object of the model, any compatible change will be propagat
   delete proxy.newKey;
 ```
 
+#### Non-Compatible changes: *Functions* and *Undefined* values and *Type changes*:
+
+- In general, avoid assigning `undefined` and `function` values to proxy paths that should propagate their changes to SwellRT model.
+SwellRT does not have any `undefined` or `function` object types, therefore there is not a correct way of propagating those changes. The bhaviour when asigning an `undefined` value to a property in the proxy object is:
+  - Strings assigned to `undefined` will hold an `undefined` value in the proxy and a  `SwellRT.createString(undefined)` value in the SwellRT model.
+  - FileObjects assigned to `undefined` will clear their previous value holding a cleared FileType object at the SwellRT model and an `undefined` value in the proxy.
+  - Arrays and Maps assigned to `undefined` will stop propagating changes from their path (i.e. if an Array or a Map is assigned to `undefined`, the proxy object will have an undefined value in that path but the SwellRT model will keep the previous values. Further changes in that path will *not* be propatagted.
+  - TextObjects assigned to `undefined` will not change the SwellRT model.
+
+- To change directly the type of an already observed path will result in unexpected behaviour. Please, first `delete` and then add the new object of a ifferent type if you need to change the type of an attribute.
+
 ### Ready to use collaborative rich-text editor: Rich text objects can be edited through the SwellRT editor. Following example shows how:
   - Create the rich-text object: In a proxy of a SwellRT model (see instructions above), add a TextObject:
   ``` javascript
@@ -113,6 +124,8 @@ Once you get a proxy object of the model, any compatible change will be propagat
      - `placeholder` is an optional parameter to show a placeholder when the TextObject is empty
      - `block-edit` is an optional parameters block/allow editions of the editor's content.
      - `swellrt-editor-on-ready` allows to execute an scope function after the editor is built
+
+*note*: TextObjects are not observed, since their changes are already propagated by SwellRT. To change the value that the model has at the path where a TextObject is attached, first delete that object.
 
 ### Files and attachements: Attach files to your collaborative model structure and store them in the SwellRT server. Following example shows how:
   - Create the attachement object: In a proxy of a SwellRT model (see instructions above), add a FileObject:
