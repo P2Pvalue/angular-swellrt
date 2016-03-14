@@ -531,7 +531,7 @@ angular.module('SwellRTService',[])
               },
               function (newValue){
                 if (newValue === undefined){
-                  elem.clearValue();
+                   elem.clearValue();
                 } else {
                   var r = path.reduce(function(object, key){return object[key];}, mod);
                   if (r.file !== undefined) {
