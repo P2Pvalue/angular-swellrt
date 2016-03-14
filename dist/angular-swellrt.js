@@ -507,7 +507,8 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
             var r = path.reduce(function (object, key) {
               return object[key];
             }, mod);
-            if (typeof r !== 'string') {
+
+            if (r instanceof Object) {
               return r.file || r.url;
             }
             return undefined;
