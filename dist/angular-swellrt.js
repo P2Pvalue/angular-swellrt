@@ -521,18 +521,18 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
           }
         }, function (newValue) {
           if (newValue === undefined) {
-            //return;
+            elem.clearValue();
           } else {
-              var r = path.reduce(function (object, key) {
-                return object[key];
-              }, mod);
-              if (r.file !== undefined) {
-                model.createFile(r.file, function (newFile) {
-                  elem.setValue(newFile);
-                  $timeout();
-                });
-              }
+            var r = path.reduce(function (object, key) {
+              return object[key];
+            }, mod);
+            if (r.file !== undefined) {
+              model.createFile(r.file, function (newFile) {
+                elem.setValue(newFile);
+                $timeout();
+              });
             }
+          }
         });
         return unwatch;
       }
