@@ -408,8 +408,6 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
           }
           if (typeof newValue === 'string') {
             elem.setValue(newValue);
-          } else if (typeof newValue === 'undefined') {
-            elem.setValue(undefined);
           }
         }, true);
         return unwatch;
@@ -509,8 +507,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
             var r = path.reduce(function (object, key) {
               return object[key];
             }, mod);
-
-            if (r instanceof Object) {
+            if (typeof r !== 'string') {
               return r.file || r.url;
             }
             return undefined;
