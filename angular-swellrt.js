@@ -513,7 +513,8 @@ angular.module('SwellRTService',[])
               function(){
                 try{
                   var r = path.reduce(function(object, key){return object[key];}, mod);
-                  if (typeof r !== 'string'){
+
+                  if (r instanceof Object) {
                     return r.file || r.url;
                   }
                   return undefined;
