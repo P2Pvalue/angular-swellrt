@@ -135,3 +135,37 @@ Once you get a proxy object of the model, any compatible change will be propagat
   ```
 
 See [SwellRT avatars](https://github.com/P2Pvalue/swellrt/wiki/Extras#avatars) to learn what can be used in swellrt-avat-options parameter (size, number of avatars, etc).
+
+## Development
+
+### Clone angular-swellrt
+
+Clone this repository using git:
+
+```
+git clone P2Pvalue/angular-swellrt.git
+cd angular-swellrt
+```
+
+### Install dependencies
+
+Angular-swellRT uses npm and bower to manage dependencies, run the following code to get them:
+
+```
+npm install
+bower install
+```
+
+### Compile changes with [Babel](https://babeljs.io/):
+
+Angular-swellRT uses [Babel](https://babeljs.io/) to compile its ECMAScript 6 code to a previous javascript version. Following gulp commands does this job, resulting in the file dist/angular-swellrt.js:
+
+To run it once:
+```
+gulp dist
+```
+
+To run it for every source code change:
+```
+gulp live:dist
+```
