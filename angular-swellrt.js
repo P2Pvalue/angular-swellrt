@@ -411,6 +411,8 @@ angular.module('SwellRTService',[])
                 }
                 if (typeof newValue === 'string'){
                   elem.setValue(newValue);
+                } else if (typeof newValue === 'undefined'){
+                  elem.setValue(undefined);
                 }
               }, true);
             return unwatch;
