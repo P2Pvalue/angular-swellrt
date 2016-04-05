@@ -113,11 +113,18 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
       unwatch = $rootScope.$watchCollection(function () {
         return proxy._participants;
       }, function (newValues, oldValues) {
+        if (oldValues === undefined) {
+          return;
+        }
 
         newValues = newValues || [];
         oldValues = oldValues || [];
         var addedVals = diff(newValues, oldValues);
         var deletedVals = diff(oldValues, newValues);
+
+        if (addedVals.length === 0 && deletedVals.length === 0) {
+          return;
+        }
 
         unwatch();
         proxy._participants = model.getParticipants();
@@ -532,7 +539,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
           }
           // AngularJS introduce $$haskKey property to some objects
           var oldKeys = Object.keys(oldValue);
-          oldKeys.push('$$hashKey');
+          oldKeys.push('$$hashKey', '_participants');
           var newVals = diff(Object.keys(newValue), oldKeys);
           angular.forEach(newVals, function (value) {
             createAttachObject(elem, value, newValue[value], model);
