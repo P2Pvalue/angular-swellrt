@@ -89,18 +89,11 @@ angular.module('SwellRTService',[])
           return proxy._participants;
         },
           function(newValues, oldValues) {
-            if (oldValues === undefined){
-              return;
-            }
 
             newValues = newValues || [];
             oldValues = oldValues || [];
             var addedVals = diff(newValues, oldValues);
             var deletedVals = diff(oldValues, newValues);
-
-            if (addedVals.length === 0 && deletedVals.length === 0){
-              return;
-            }
 
             unwatch();
             proxy._participants = model.getParticipants();
@@ -155,7 +148,7 @@ angular.module('SwellRTService',[])
         }
       } else if (className === 'MapType'){
         try{
-          if(key !== '$$hashKey'){
+          if(key !== '$$hashKey' && key !== '_participants'){
             obj.put(key, o);
           }
         }
