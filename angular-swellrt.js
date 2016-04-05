@@ -67,6 +67,59 @@ angular.module('SwellRTService',[])
     // to handle unwatch and watch during model changed callbacks from SwellRT
     var unwatchMap = [];
 
+    function addParticipantsObservableList(model, proxy){
+
+      var unwatch;
+      proxy._participants = model.getParticipants();
+
+      model.registerEventHandler(SwellRT.events.PARTICIPANT_ADDED,
+        function(participant){
+          proxy._participants.push(participant);
+          $timeout();
+        });
+
+      model.registerEventHandler(SwellRT.events.PARTICIPANT_REMOVED,
+        function(participant){
+          proxy._participants.splice(proxy._participants.indexOf(participant), 1);
+          $timeout();
+        });
+
+      function watch() {
+        unwatch = $rootScope.$watchCollection(function(){
+          return proxy._participants;
+        },
+          function(newValues, oldValues) {
+            if (oldValues === undefined){
+              return;
+            }
+
+            newValues = newValues || [];
+            oldValues = oldValues || [];
+            var addedVals = diff(newValues, oldValues);
+            var deletedVals = diff(oldValues, newValues);
+
+            if (addedVals.length === 0 && deletedVals.length === 0){
+              return;
+            }
+
+            unwatch();
+            proxy._participants = model.getParticipants();
+            watch();
+
+            angular.forEach(addedVals, function(value){
+              model.addParticipant(value);
+            });
+
+            angular.forEach(deletedVals, function(value){
+              model.removeParticipant(value);
+            });
+          }
+        );
+      }
+
+      watch();
+    }
+
     function proxy(model, ProxyClass) {
       var proxyObj;
       if (ProxyClass){
@@ -78,6 +131,8 @@ angular.module('SwellRTService',[])
       simplify(model.root, proxyObj, []);
       watchModel(model.root, proxyObj, [], model);
       registerEventHandlers(model.root, proxyObj, [], model);
+
+      addParticipantsObservableList(model, proxyObj);
 
       return proxyObj;
     }
