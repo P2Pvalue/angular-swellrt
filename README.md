@@ -98,6 +98,14 @@ Once you get a proxy object of the model, any compatible change will be propagat
   delete proxy.newKey;
 ```
 
+Angular-SwellRT collaborative objects have a special attribute `_participants` to manage the participants of the SwellRT model.
+``` javascript
+  // add a participant to the model
+  proxy._participants.push('foo@local.net');
+  // make a model public:
+  proxy._participants.push('@local.net');
+```
+
 #### Non-Compatible changes: *Functions* and *Undefined* values and *Type changes*:
 
 - In general, avoid assigning `undefined` and `function` values to proxy paths that should propagate their changes to SwellRT model.
