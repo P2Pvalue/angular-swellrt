@@ -81,7 +81,7 @@ You have several options for the SwellRT server:
   * Maps and lists
   * Strings values
   * Rich\-Text values
-
+  * Attachments
 
 Once you get a proxy object of the model, any compatible change will be propagated, some examples are given bellow:
 
