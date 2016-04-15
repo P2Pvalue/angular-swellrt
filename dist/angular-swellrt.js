@@ -690,7 +690,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
           });
         }
 
-        scope.onReady();
+        scope.onReady()(editor);
       }
     });
 

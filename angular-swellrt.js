@@ -720,7 +720,7 @@ angular.module('SwellRTService',[])
                 });
           }
 
-          scope.onReady(editor);
+          scope.onReady()(editor);
         }
       });
 
