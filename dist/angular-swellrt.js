@@ -638,6 +638,11 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
         }
 
         editor.cleanUp();
+
+        if (scope.onCreate()) {
+          scope.onCreate()(editor);
+        }
+
         editor.edit(modelValue);
 
         var blockEditor = function blockEditor(isBlocked) {
@@ -707,7 +712,8 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     link: link,
     scope: {
       ngModel: '=',
-      onReady: '&swellrtEditorOnReady'
+      onReady: '&swellrtEditorOnReady',
+      onCreate: '&swellrtEditorOnCreate'
     }
   };
 })
