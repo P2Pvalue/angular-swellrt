@@ -2,7 +2,7 @@
 SwellRT integration for [angular.js](https://angularjs.org):
 
 ## Features
-### 3 way data binding (client, model, server) for real time collaboration over a federated infraestructure thanks to [SwellRT](https://github.com/P2Pvalue/SwellRT) technology.
+### 3 way data binding (client, model, server) for real time collaboration over a federated infrastructure thanks to [SwellRT](https://github.com/P2Pvalue/SwellRT) technology.
 Use collaborative javascript models composed by:
   * Maps and lists
   * Strings values
