@@ -73,9 +73,11 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     }, {
       key: 'getUrl',
       value: function getUrl() {
+        var _this = this;
+
         this._urlDef = $q.defer();
         this.swellRTFile.then(function (f) {
-          this._urlDef.resolve(f.getUrl());
+          _this._urlDef.resolve(f.getUrl());
         });
         return this._urlDef.promise;
       }

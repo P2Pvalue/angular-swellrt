@@ -51,7 +51,7 @@ angular.module('SwellRTService',[])
       // returns a promise
       getUrl (){
         this._urlDef = $q.defer();
-        this.swellRTFile.then(function(f){
+        this.swellRTFile.then((f) => {
           this._urlDef.resolve(f.getUrl());
         });
         return this._urlDef.promise;
