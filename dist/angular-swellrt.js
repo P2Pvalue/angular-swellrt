@@ -255,7 +255,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
   function setPathValue(obj, path, value) {
     return path.reduce(function (object, key) {
       return function (v) {
-        if (v) {
+        if (v !== undefined) {
           object()[key] = v;
         }
         return object()[key];
