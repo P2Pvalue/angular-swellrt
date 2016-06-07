@@ -306,6 +306,9 @@ angular.module('SwellRTService',[])
               // unwatch
               unwatchMap[path.join()][0]();
 
+              //unwatch erased element
+              unwatchMap[path.concat(item[0]).join()][0]();
+
               par.splice(item[0], 1);
 
               // watch
@@ -352,6 +355,9 @@ angular.module('SwellRTService',[])
 
               // unwatch
               unwatchMap[path.join()][0]();
+
+              //unwatch erased element
+              unwatchMap[path.concat(item[0]).join()][0]();
 
               delete p.reduce(function(object, key){return object[key];}, mod)[item[0]];
               // watch
