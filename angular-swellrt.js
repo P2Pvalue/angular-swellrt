@@ -118,6 +118,8 @@ angular.module('SwellRTService',[])
       }
 
       watch();
+      $rootScope.$digest();
+
     }
 
     function proxy(model, ProxyClass) {
