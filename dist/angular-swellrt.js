@@ -143,7 +143,6 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     }
 
     watch();
-    $rootScope.$digest();
   }
 
   function proxy(model, ProxyClass) {
@@ -159,6 +158,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     registerEventHandlers(model.root, proxyObj, [], model);
 
     addParticipantsObservableList(model, proxyObj);
+    $rootScope.$digest();
 
     return proxyObj;
   }
