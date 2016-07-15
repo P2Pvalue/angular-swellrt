@@ -493,6 +493,11 @@ angular.module('SwellRTService',[])
         },
         function(elem, mod, path){
           function watch() {
+            // unwatch (needed for resynch SwellRT object after reconnection)
+            if (unwatchMap[path.join()]){
+              unwatchMap[path.join()][0]();
+            }
+
             var unwatch = $rootScope.$watchCollection(
               function(){
                 // TODO avoid path.reduce
@@ -539,6 +544,10 @@ angular.module('SwellRTService',[])
         },
         function(elem, mod, path){
           function watch() {
+            // unwatch (needed for resynch SwellRT object after reconnection)
+            if (unwatchMap[path.join()]) {
+              unwatchMap[path.join()][0]();
+            }
             var unwatch = $rootScope.$watchCollection(
               function(){
                 try {
