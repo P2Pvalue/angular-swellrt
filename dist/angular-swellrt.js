@@ -145,7 +145,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     watch();
   }
 
-  var ignoredKeys = ['$$hashKey', '_participants', '_id'];
+  var reservedRootKeys = ['_id', '_participants'];
 
   function proxy(model, ProxyClass) {
     var proxyObj;
@@ -185,7 +185,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
       catch (e) {}
     } else if (className === 'MapType') {
       try {
-        if (ignoredKeys.indexOf(key) < 0) {
+        if (key !== '$$haskKey') {
           obj.put(key, o);
         }
       }
@@ -562,7 +562,13 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
           }
           // AngularJS introduce $$haskKey property to some objects
           var oldKeys = Object.keys(oldValue);
-          oldKeys.push.apply(oldKeys, ignoredKeys);
+          oldKeys.push('$$hashKey');
+
+          // ignore root reserved keys
+          if (path.join() === '') {
+            oldKeys.push.apply(oldKeys, reservedRootKeys);
+          }
+
           var newVals = diff(Object.keys(newValue), oldKeys);
           angular.forEach(newVals, function (value) {
             createAttachObject(elem, value, newValue[value], model);
