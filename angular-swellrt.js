@@ -164,7 +164,7 @@ angular.module('SwellRTService',[])
         }
       } else if (className === 'MapType'){
         try{
-          if(key !== '$$haskKey'){
+          if(key !== '$$hashKey'){
             obj.put(key, o);
           }
         }
