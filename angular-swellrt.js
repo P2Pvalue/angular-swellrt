@@ -759,7 +759,11 @@ angular.module('SwellRTService',[])
         }
       });
 
-      element.on('$destroy', function(){
+      // Suscribe to scope $destroy event better than element,
+      // so it is triggered before. Otherwise, it is triggered after it is
+      // propagated through the DOM, and can be fired after the
+      // editor loads a new model
+      scope.$on('$destroy', function () {
         if (editor){
           editor.cleanUp();
         }
