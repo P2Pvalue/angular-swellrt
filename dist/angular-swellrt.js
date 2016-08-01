@@ -185,7 +185,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
       catch (e) {}
     } else if (className === 'MapType') {
       try {
-        if (key !== '$$haskKey') {
+        if (key !== '$$hashKey') {
           obj.put(key, o);
         }
       }
@@ -728,7 +728,11 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
       }
     });
 
-    element.on('$destroy', function () {
+    // Suscribe to scope $destroy event better than element,
+    // so it is triggered before. Otherwise, it is triggered after it is
+    // propagated through the DOM, and can be fired after the
+    // editor loads a new model
+    scope.$on('$destroy', function () {
       if (editor) {
         editor.cleanUp();
       }
