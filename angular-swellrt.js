@@ -684,7 +684,7 @@ angular.module('SwellRTService',[])
         if (modelValue){
 
           if (!editor){
-            editor = SwellRT.editor(id);
+            editor = SwellRT.editor(id, scope.widgets || {}, scope.annotations || {});
           }
 
           editor.cleanUp();
@@ -777,7 +777,9 @@ angular.module('SwellRTService',[])
       scope: {
         ngModel: '=',
         onReady: '&swellrtEditorOnReady',
-        onCreate: '&swellrtEditorOnCreate'
+        onCreate: '&swellrtEditorOnCreate',
+        widgets: '=swellrtEditorWidgets',
+        annotations: '=swellrtEditorAnnotations'
       }
     };
   })
