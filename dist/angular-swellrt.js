@@ -663,7 +663,7 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
       if (modelValue) {
 
         if (!editor) {
-          editor = SwellRT.editor(id);
+          editor = SwellRT.editor(id, scope.widgets || {}, scope.annotations || {});
         }
 
         editor.cleanUp();
@@ -746,7 +746,9 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     scope: {
       ngModel: '=',
       onReady: '&swellrtEditorOnReady',
-      onCreate: '&swellrtEditorOnCreate'
+      onCreate: '&swellrtEditorOnCreate',
+      widgets: '=swellrtEditorWidgets',
+      annotations: '=swellrtEditorAnnotations'
     }
   };
 })
