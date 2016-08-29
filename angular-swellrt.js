@@ -668,7 +668,7 @@ angular.module('SwellRTService',[])
 
 
   }])
-  .directive('swellrtEditor', function() {
+  .directive('swellrtEditor', ['$timeout', function($timeout) {
     var editorCount = 0;
 
     function link(scope, element, attrs, ngModelCtrl) {
@@ -681,11 +681,14 @@ angular.module('SwellRTService',[])
       }
 
       ngModelCtrl.$formatters.unshift(function (modelValue) {
-        if (modelValue){
 
-          if (!editor){
+        if (!editor){
+          $timeout(function(){
             editor = SwellRT.editor(id, scope.widgets || {}, scope.annotations || {});
-          }
+          });
+        }
+
+        if (modelValue){
 
           editor.cleanUp();
 
@@ -782,7 +785,7 @@ angular.module('SwellRTService',[])
         annotations: '=swellrtEditorAnnotations'
       }
     };
-  })
+  }])
   // TODO number of avatars
   // TODO css class
   .directive('swellrtAvatars', function() {
