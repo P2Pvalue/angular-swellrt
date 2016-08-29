@@ -1,6 +1,6 @@
 {
   "name": "angular-swellrt",
-  "version": "0.18.4",
+  "version": "0.18.3",
   "description": "SwellRT integration for angular.js: 3 way data binding (client, model, server) for real time collaboration over a federated infraestructure thanks to SwellRT technology",
   "main": "angular-swellrt.js",
   "scripts": {
