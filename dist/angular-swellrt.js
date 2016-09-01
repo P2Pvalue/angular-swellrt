@@ -11,7 +11,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$timeout', function ($rootScope, $q, $timeout) {
+angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$timeout', '$browser', function ($rootScope, $q, $timeout, $browser) {
 
   function diff(a, b) {
     return a.filter(function (i) {
@@ -642,10 +642,152 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
       setPathValue(mod, path, f);
     });
   }
+
+  /*
+   * SwellRT API
+   */
+
+  function startSession(server, user, password, onSuccess, onError) {
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.startSession(server, user, password, function (session) {
+
+      $browser.$$completeOutstandingRequest(onSuccess, session);
+    }, function (error) {
+
+      $browser.$$completeOutstandingRequest(onError, error);
+    });
+  }
+
+  function resumeSession(onSuccess, onError) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.resumeSession(function (res) {
+
+      $browser.$$completeOutstandingRequest(onSuccess, res);
+    }, function (error) {
+
+      $browser.$$completeOutstandingRequest(onError, error);
+    });
+  }
+
+  function recoverPassword(email, recoverUrl, onSuccess, onError) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.recoverPassword(email, recoverUrl, function (success) {
+
+      $browser.$$completeOutstandingRequest(onSuccess, success);
+    }, function (error) {
+
+      $browser.$$completeOutstandingRequest(onError, error);
+    });
+  }
+
+  function setPassword(id, tokenOrPassword, password, onSuccess, onError) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.setPassword(id, tokenOrPassword, password, function (success) {
+
+      $browser.$$completeOutstandingRequest(onSuccess, success);
+    }, function (error) {
+
+      $browser.$$completeOutstandingRequest(onError, error);
+    });
+  }
+
+  function createUser(data, cb) {
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.createUser(data, function (res) {
+
+      $browser.$$completeOutstandingRequest(cb, res);
+    });
+  }
+
+  function getUserProfile(data, cb) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.getUserProfile(data, function (res) {
+
+      $browser.$$completeOutstandingRequest(cb, res);
+    });
+  }
+
+  function updateUserProfile(data, cb) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.updateUserProfile(data, function (res) {
+
+      $browser.$$completeOutstandingRequest(cb, res);
+    });
+  }
+
+  function createModel(onReady) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.createModel(function (dataModel) {
+
+      $browser.$$completeOutstandingRequest(onReady, dataModel);
+    });
+  }
+
+  function openModel(dataModelId, onReady) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.openModel(dataModelId, function (dataModel) {
+
+      $browser.$$completeOutstandingRequest(onReady, dataModel);
+    });
+  }
+
+  function query(expresion, onSuccess, onFailure) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.query(expresion, function (result) {
+
+      $browser.$$completeOutstandingRequest(onSuccess, result);
+    }, function (error) {
+
+      $browser.$$completeOutstandingRequest(onFailure, error);
+    });
+  }
+
+  function invite(emails, url, name, onSuccess, onFailure) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.invite(emails, url, name, function (result) {
+
+      $browser.$$completeOutstandingRequest(onSuccess, result);
+    }, function (error) {
+
+      $browser.$$completeOutstandingRequest(onFailure, error);
+    });
+  }
+
   return {
     proxy: proxy,
     TextObject: TextObject,
-    FileObject: FileObject
+    FileObject: FileObject,
+    startSession: startSession,
+    resumeSession: resumeSession,
+    recoverPassword: recoverPassword,
+    setPassword: setPassword,
+    createUser: createUser,
+    getUserProfile: getUserProfile,
+    updateUserProfile: updateUserProfile,
+    createModel: createModel,
+    openModel: openModel,
+    query: query,
+    invite: invite
   };
 }]).directive('swellrtEditor', function () {
   var editorCount = 0;

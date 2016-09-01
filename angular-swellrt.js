@@ -7,7 +7,7 @@
  * Interface service with SwellRT API
  */
 angular.module('SwellRTService',[])
-  .factory('swellRT', ['$rootScope', '$q', '$timeout', function($rootScope, $q, $timeout){
+  .factory('swellRT', ['$rootScope', '$q', '$timeout', '$browser', function($rootScope, $q, $timeout, $browser){
 
     function diff(a, b) {
       return a.filter(function(i) {return b.indexOf(i) < 0;});
@@ -660,10 +660,164 @@ angular.module('SwellRTService',[])
         }
       );
     }
+
+    /*
+     * SwellRT API
+     */
+
+    function startSession (server, user, password, onSuccess, onError) {
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.startSession(server, user, password,
+        (session) => {
+
+          $browser.$$completeOutstandingRequest(onSuccess, session);
+        },
+        (error) => {
+
+          $browser.$$completeOutstandingRequest(onError, error);
+        });
+    }
+
+    function resumeSession (onSuccess, onError) {
+
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.resumeSession(
+        (res) => {
+
+          $browser.$$completeOutstandingRequest(onSuccess, res);
+        },
+        (error) => {
+
+          $browser.$$completeOutstandingRequest(onError, error);
+      });
+    }
+
+    function recoverPassword (email, recoverUrl, onSuccess, onError) {
+
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.recoverPassword(email, recoverUrl,
+        (success) => {
+
+          $browser.$$completeOutstandingRequest(onSuccess, success);
+        },
+        (error) => {
+
+          $browser.$$completeOutstandingRequest(onError, error);
+        });
+    }
+
+    function setPassword(id, tokenOrPassword, password, onSuccess, onError) {
+
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.setPassword(id, tokenOrPassword, password,
+        (success) => {
+
+          $browser.$$completeOutstandingRequest(onSuccess, success);
+        },
+        (error) => {
+
+          $browser.$$completeOutstandingRequest(onError, error);
+        });
+    }
+
+    function createUser (data, cb) {
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.createUser(data, (res) => {
+
+        $browser.$$completeOutstandingRequest(cb, res);
+      });
+    }
+
+    function getUserProfile (data, cb) {
+
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.getUserProfile(data, (res) => {
+
+        $browser.$$completeOutstandingRequest(cb, res);
+      });
+    }
+
+    function updateUserProfile (data, cb) {
+
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.updateUserProfile(data, (res) => {
+
+        $browser.$$completeOutstandingRequest(cb, res);
+      });
+    }
+
+    function createModel (onReady) {
+
+      $browser.$$incOutstandingRequestCount();
+
+       SwellRT.createModel((dataModel) => {
+
+        $browser.$$completeOutstandingRequest(onReady, dataModel);
+      });
+    }
+
+    function openModel (dataModelId, onReady) {
+
+      $browser.$$incOutstandingRequestCount();
+
+       SwellRT.openModel(dataModelId, (dataModel) => {
+
+        $browser.$$completeOutstandingRequest(onReady, dataModel);
+      });
+    }
+
+    function query (expresion, onSuccess, onFailure) {
+
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.query(expresion,
+        (result) => {
+
+          $browser.$$completeOutstandingRequest(onSuccess, result);
+        },
+        (error) => {
+
+          $browser.$$completeOutstandingRequest(onFailure, error);
+        });
+    }
+
+    function invite (emails, url, name, onSuccess, onFailure) {
+
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.invite(emails, url, name,
+        (result) => {
+
+          $browser.$$completeOutstandingRequest(onSuccess, result);
+        },
+        (error) => {
+
+          $browser.$$completeOutstandingRequest(onFailure, error);
+        });
+    }
+
     return {
       proxy: proxy,
       TextObject: TextObject,
-      FileObject: FileObject
+      FileObject: FileObject,
+      startSession,
+      resumeSession,
+      recoverPassword,
+      setPassword,
+      createUser,
+      getUserProfile,
+      updateUserProfile,
+      createModel,
+      openModel,
+      query,
+      invite
     };
 
 
