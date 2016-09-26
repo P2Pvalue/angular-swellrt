@@ -773,6 +773,19 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     });
   }
 
+  function join(userName, waveUrl, waveTitle, text, userEmail, onSuccess, onFailure) {
+
+    $browser.$$incOutstandingRequestCount();
+
+    SwellRT.join(userName, waveUrl, waveTitle, text, userEmail, function (result) {
+
+      $browser.$$completeOutstandingRequest(onSuccess, result);
+    }, function (error) {
+
+      $browser.$$completeOutstandingRequest(onFailure, error);
+    });
+  }
+
   return {
     proxy: proxy,
     TextObject: TextObject,
@@ -787,7 +800,8 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     createModel: createModel,
     openModel: openModel,
     query: query,
-    invite: invite
+    invite: invite,
+    join: join
   };
 }]).directive('swellrtEditor', function () {
   var editorCount = 0;

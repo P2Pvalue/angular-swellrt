@@ -803,6 +803,21 @@ angular.module('SwellRTService',[])
         });
     }
 
+    function join (userName, waveUrl, waveTitle, text, userEmail, onSuccess, onFailure) {
+
+      $browser.$$incOutstandingRequestCount();
+
+      SwellRT.join(userName, waveUrl, waveTitle, text, userEmail,
+        (result) => {
+
+          $browser.$$completeOutstandingRequest(onSuccess, result);
+        },
+        (error) => {
+
+          $browser.$$completeOutstandingRequest(onFailure, error);
+        });
+    }
+
     return {
       proxy: proxy,
       TextObject: TextObject,
@@ -817,7 +832,8 @@ angular.module('SwellRTService',[])
       createModel,
       openModel,
       query,
-      invite
+      invite,
+      join
     };
 
 
