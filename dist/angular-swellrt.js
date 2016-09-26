@@ -773,11 +773,11 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
     });
   }
 
-  function join(userName, waveUrl, waveTitle, text, userEmail, onSuccess, onFailure) {
+  function join(emailOrUser, waveUrl, waveTitle, text, user, onSuccess, onFailure) {
 
     $browser.$$incOutstandingRequestCount();
 
-    SwellRT.join(userName, waveUrl, waveTitle, text, userEmail, function (result) {
+    SwellRT.join(emailOrUser, waveUrl, waveTitle, text, user, function (result) {
 
       $browser.$$completeOutstandingRequest(onSuccess, result);
     }, function (error) {
