@@ -387,7 +387,7 @@ angular.module('SwellRTService',[])
             function(newValue) {
               var r = path.reduce(function(object, key){return object[key];}, mod);
               try {
-                r.setValue(elem);
+                r.setValue(newValue);
               } catch (e) {
                 console.log(e);
               }
@@ -622,6 +622,7 @@ angular.module('SwellRTService',[])
                   if (r.file !== undefined) {
                     model.createFile(r.file, function(newFile){
                       elem.setValue(newFile);
+                      r.setValue(newFile);
                       $timeout();
                     });
                   }
