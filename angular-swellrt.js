@@ -53,6 +53,7 @@ angular.module('SwellRTService',[])
         this._urlDef = $q.defer();
         this.swellRTFile.then((f) => {
           this._urlDef.resolve(f.getUrl());
+          $timeout();
         });
         return this._urlDef.promise;
       }
