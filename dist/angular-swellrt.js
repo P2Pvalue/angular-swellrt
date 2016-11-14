@@ -475,7 +475,17 @@ angular.module('SwellRTService', []).factory('swellRT', ['$rootScope', '$q', '$t
           if (typeof newValue === 'string') {
             elem.setValue(newValue);
           } else if (typeof newValue === 'undefined') {
-            elem.setValue(undefined);
+
+            var parent = path.slice(0, path.length - 1).reduce(function (object, key) {
+              return object[key];
+            }, mod);
+
+            // if the value has been deleted
+            if (Object.keys(parent).indexOf(path[path.lenght - 1]) === -1) {
+              unwatch();
+            } else {
+              console.log('WARNING: trying to set a string value to undefined:', ' operation not supported, at path: ', path.join('.'));
+            }
           }
         }, true);
         return unwatch;
