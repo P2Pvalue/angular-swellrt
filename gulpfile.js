@@ -4,7 +4,7 @@ var config = {
 
   server: {
     port: 5580,
-    host: 'angular-swellrt'
+    host: 'localhost'
   },
 };
 
