@@ -49,7 +49,12 @@ describe( 'swellRT', function(){
   });
 
   beforeEach(function(done){
-    var session = window.SwellRT.startSession(config.swellrt.server, config.swellrt.user, config.swellrt.pass, done);
+    var session = window.SwellRT.startSession(config.swellrt.server, config.swellrt.user, config.swellrt.pass, done, function(err){
+      if (err === 'ACCESS_FORBIDDEN_EXCEPTION'){
+        // register test user if not registered yet
+        window.SwellRT.createUser({ id: config.swellrt.user, password: config.swellrt.pass}, done);
+      }
+    });
   });
 
 
